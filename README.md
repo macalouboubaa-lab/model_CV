@@ -11,6 +11,7 @@ Une galerie de quatorze modèles de CV en HTML, CSS et JavaScript natifs. Les mo
 - `Ctrl+S` (ou `Cmd+S` sur Mac) sauvegarde également. « Aperçu » masque la barre d'outils ; la touche Échap la réaffiche.
 - « Exporter en PDF » ouvre la fenêtre d'impression du navigateur. Choisissez « Enregistrer au format PDF » comme destination.
 - « Réinitialiser » demande confirmation, efface la sauvegarde du modèle et recharge son contenu d'origine.
+- Le lien Wave de la galerie ouvre un paiement externe fixe de 2 000 FCFA au marchand « Scent & Style Store ». Ce paiement n’est pas relié à un compte ni à un droit de téléchargement dans cette version.
 
 Chaque modèle intègre son CSS et son JavaScript et peut être ouvert directement dans un navigateur. Le portrait initial est chargé depuis `assets/placeholder-photo.jpg` ; conservez ce fichier à côté des modèles ou remplacez la photo dans l'éditeur. La galerie utilise aussi ses propres ressources dans `assets/`.
 

@@ -11,6 +11,9 @@ main { max-width: 1160px; margin: 0 auto; padding: 52px clamp(18px, 5vw, 56px) 6
 h1 { margin: 0; font: 700 clamp(38px, 6vw, 65px)/.98 Georgia, 'Times New Roman', serif; }
 h1 span { color: var(--accent); }
 .intro-note { max-width: 290px; margin: 0 0 5px; color: #555650; font-size: 14px; line-height: 1.6; }
+.wave-cta { display: inline-block; margin-top: 14px; padding: 10px 13px; border-radius: 4px; background: #27ae60; color: white; font-size: 12px; font-weight: 700; text-decoration: none; }
+.wave-cta:hover { background: #208d4e; }
+.wave-note { display: block; margin-top: 7px; color: var(--muted); font-size: 10px; line-height: 1.45; }
 .gallery-head { display: flex; justify-content: space-between; align-items: center; margin: 29px 0 17px; }
 .gallery-head h2 { margin: 0; font-size: 15px; }
 .search { display: flex; align-items: center; gap: 8px; width: 205px; padding: 7px 10px; border: 1px solid var(--line); background: #fff; color: var(--muted); }

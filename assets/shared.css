@@ -76,7 +76,21 @@ h1 span { color: var(--accent); }
 .template:hover .arrow { transform: translate(2px, -2px); }
 .empty { padding: 30px 0; color: var(--muted); text-align: center; }
 footer { display: flex; justify-content: space-between; padding: 18px clamp(18px, 6vw, 90px); border-top: 1px solid var(--line); background: #f8f7f3; }
+.sama-footer { display: block; margin-top: 40px; padding: 24px 16px; border-top: 3px solid #C342FF; background: #0B0F19; color: #B8BCC8; font: 13px Arial, sans-serif; text-align: center; }
+.sama-footer strong { color: #C342FF; font-weight: 700; }
+.sama-footer a { color: #C342FF; font-weight: 600; text-decoration: none; transition: color .2s; }
+.sama-footer a:hover { color: #A82EE0; text-decoration: underline; }
+.sama-footer .separator { margin: 0 8px; color: #4A5060; }
 footer span:first-child { color: var(--ink); font-weight: 800; letter-spacing: 1px; }
+.home-actions { display:flex; justify-content:center; flex-wrap:wrap; gap:10px; margin:20px 0 0; }
+.btn-guide, .btn-login { display:inline-block; padding:8px 16px; border:1px solid var(--accent); border-radius:4px; color:var(--accent); font-size:13px; font-weight:700; text-decoration:none; }
+.btn-guide:hover, .btn-login:hover { background:var(--accent); color:#fff; }
+.ats-banner { max-width:800px; margin:24px auto 0; padding:16px 20px; border:1px solid #27AE6066; border-radius:8px; background:linear-gradient(135deg,#27AE6026,#27AE600d); text-align:center; }
+.ats-banner .badge-ats { display:inline-block; margin-bottom:8px; padding:5px 13px; border-radius:20px; background:#27AE60; color:#fff; font-size:12px; font-weight:700; }
+.ats-banner p { margin:0; color:#555650; font-size:13px; }
+.ats-banner a { color:#1d8749; font-weight:700; text-decoration:none; }
+.ats-banner a:hover { text-decoration:underline; }
 @media (max-width: 760px) { .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } .intro { align-items: start; flex-direction: column; } .intro-note { max-width: 420px; } }
+@media (max-width: 860px) { .ats-banner { width:calc(100% - 36px); } }
 @media (max-width: 480px) { .top-note { max-width: 120px; text-align: right; line-height: 1.4; } main { padding-top: 36px; } .gallery { grid-template-columns: 1fr; gap: 20px; } .preview { height: 240px; padding-left: 11%; padding-right: 11%; } .preview-sidebar, .preview-left { padding-left: 39%; } .gallery-head { align-items: flex-start; gap: 10px; } .search { width: 165px; } footer { gap: 12px; font-size: 10px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0F19">
+  <title>Créer un compte — SAMA CV</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png">
+  <link rel="stylesheet" href="/assets/shared.css">
+  <style>
+    body { min-height:100vh; display:flex; flex-direction:column; background:#0B0F19; color:#B8BCC8; }
+    main { width:min(100% - 32px, 440px); margin:auto; padding:34px 0 50px; }
+    .brand { display:block; width:min(100%, 320px); height:auto; margin:0 auto 30px; }
+    .form-panel { padding:30px; border:1px solid #2a3041; border-radius:8px; background:#141824; }
+    h1 { margin:0 0 8px; color:white; font:700 28px Georgia,serif; }
+    .intro { margin:0 0 24px; color:#B8BCC8; font-size:14px; line-height:1.55; }
+    label { display:block; margin:15px 0 6px; color:#e4e5eb; font-size:13px; font-weight:600; }
+    input { width:100%; min-height:44px; padding:10px 12px; border:1px solid #41485b; border-radius:4px; background:#0B0F19; color:white; font:14px Arial,sans-serif; }
+    input:focus-visible, button:focus-visible, a:focus-visible { outline:2px solid #C342FF; outline-offset:3px; }
+    .submit { width:100%; min-height:46px; margin-top:22px; border:0; border-radius:4px; background:#C342FF; color:white; font-size:14px; font-weight:700; cursor:pointer; }
+    .submit:hover { background:#A82EE0; }
+    .submit:disabled { opacity:.65; cursor:wait; }
+    .form-message { min-height:20px; margin:12px 0 0; color:#ff777d; font-size:13px; }
+    .switch { margin:20px 0 0; text-align:center; font-size:13px; }
+    .switch a { color:#d681ff; }
+    .sama-footer { margin-top:0; }
+    @media(max-width:480px) { .form-panel { padding:23px 18px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <a href="/index.html" aria-label="Retour à l’accueil SAMA CV"><img class="brand" src="/assets/logo-sama-cv.svg" alt="SAMA CV"></a>
+    <section class="form-panel" aria-labelledby="signup-title">
+      <h1 id="signup-title">Créer un compte</h1>
+      <p class="intro">Créez votre compte pour accéder à votre espace SAMA CV.</p>
+      <form id="signup-form" novalidate>
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required>
+        <label for="password">Mot de passe</label>
+        <input id="password" name="password" type="password" autocomplete="new-password" minlength="6" required>
+        <label for="confirm-password">Confirmer le mot de passe</label>
+        <input id="confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="6" required>
+        <p class="form-message" id="form-message" role="alert" aria-live="polite"></p>
+        <button class="submit" id="submit-button" type="submit">S’inscrire</button>
+      </form>
+      <p class="switch">Déjà un compte ? <a href="/login.html">Se connecter</a></p>
+    </section>
+  </main>
+  <footer class="sama-footer"><p>Créé par <strong>Boubacar Cissé</strong><span class="separator">•</span><a href="tel:+221754477448">#75 447 74 48</a></p></footer>
+  <script src="/assets/auth.js"></script>
+  <script>
+    const form = document.querySelector('#signup-form');
+    const message = document.querySelector('#form-message');
+    const submitButton = document.querySelector('#submit-button');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      message.textContent = '';
+      const password = form.password.value;
+      if (password.length < 6) {
+        message.textContent = 'Le mot de passe doit contenir au moins 6 caractères.';
+        return;
+      }
+      if (password !== form.confirmPassword.value) {
+        message.textContent = 'Les deux mots de passe ne correspondent pas.';
+        return;
+      }
+
+      submitButton.disabled = true;
+      const result = await window.signup(form.email.value, password);
+      submitButton.disabled = false;
+      if (!result.success) {
+        message.textContent = result.error || 'La création du compte a échoué.';
+        return;
+      }
+      window.location.assign('/login.html?created=1');
+    });
+  </script>
+</body>
+</html>

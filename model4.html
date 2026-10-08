@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <link rel="apple-touch-icon" sizes="512x512" href="/favicon.png">
+  <meta name="theme-color" content="#0B0F19">
   <title>Modèle 4 — Minimaliste typographique</title>
   <style>
 /* CSS commun */
@@ -73,6 +78,11 @@ body {
   margin-top: 10px; transition: all 0.2s; font-family: inherit;
 }
 .btn-add:hover { background: rgba(195,66,255,0.15); border-style: solid; }
+.sama-footer { margin-top: 40px; padding: 24px 16px; border-top: 3px solid #C342FF; background: #0B0F19; color: #B8BCC8; font: 13px Arial, sans-serif; text-align: center; }
+.sama-footer strong { color: #C342FF; font-weight: 700; }
+.sama-footer a { color: #C342FF; font-weight: 600; text-decoration: none; transition: color .2s; }
+.sama-footer a:hover { color: #A82EE0; text-decoration: underline; }
+.sama-footer .separator { margin: 0 8px; color: #4A5060; }
 @media print {
   body { background: white !important; padding-top: 0 !important; }
   .toolbar, .btn-delete, .btn-add, .no-print { display: none !important; }
@@ -121,8 +131,17 @@ body {
   
 body{background:#efeee9;color:#21221f;font-family:Georgia,'Times New Roman',serif}.cv-container{padding:22mm 23mm;border-top:1px solid #21221f;box-shadow:none}.header{align-items:center;gap:24px;padding-bottom:22px}.header-info h1{font-size:38px;line-height:1}.job-title{font-family:Georgia,serif;font-size:14px}.section{display:grid;grid-template-columns:35mm 1fr;gap:16px;margin-bottom:22px}.section-title{border:0;color:#a34735;font:11px 'Courier New',monospace;letter-spacing:0}.section-content{font:14px/1.55 Georgia,serif}.experience-item,.education-item{font-family:Arial,sans-serif}.btn-add{font-family:Arial,sans-serif}@media(max-width:800px){.cv-container{padding:18px}.section{grid-template-columns:1fr;gap:6px}.header-info h1{font-size:30px}}
   </style>
+  <script src="/assets/auth.js"></script>
+  <script src="/assets/protection.js"></script>
 </head>
 <body class="model-4">
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const session = await window.getVerifiedSession();
+      if (!session) { window.location.assign('/login.html'); return; }
+      if (session.isAdmin) document.body.classList.add('admin-mode');
+    });
+  </script>
   <div class="toolbar no-print">
     <img src="assets/logo-sama-cv.svg" alt="SAMA CV" style="height: 32px; margin-right: 20px;">
     <button type="button" onclick="exportPDF()" title="Exporter en PDF">🖨️ Exporter PDF</button>
@@ -206,5 +225,6 @@ body{background:#efeee9;color:#21221f;font-family:Georgia,'Times New Roman',seri
     document.addEventListener('keydown', (event) => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); saveToLocalStorage(true); } if (event.key === 'Escape') document.documentElement.classList.remove('preview'); });
 
   </script>
+  <footer class="sama-footer no-print"><p>Créé par <strong>Boubacar Cissé</strong><span class="separator">•</span><a href="tel:+221754477448">#75 447 74 48</a></p></footer>
 </body>
 </html>

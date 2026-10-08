@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0F19">
+  <meta name="description" content="Guide pratique pour choisir, modifier et exporter un CV SAMA CV.">
+  <title>Guide d’utilisation — SAMA CV</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png">
+  <style>
+    * { box-sizing:border-box; }
+    body { margin:0; background:#0B0F19; color:#E6E8EF; font:16px/1.7 Arial,Helvetica,sans-serif; }
+    .container { width:min(800px,calc(100% - 36px)); margin:0 auto; padding:38px 0 56px; }
+    .guide-header { margin-bottom:38px; text-align:center; }
+    .guide-header img { width:min(280px,100%); height:auto; }
+    h1 { margin:25px 0 8px; color:#fff; font:700 34px/1.15 Georgia,'Times New Roman',serif; }
+    .subtitle { margin:0; color:#B8BCC8; font-size:15px; }
+    .notice { margin:24px 0; padding:16px 18px; border-left:4px solid #27AE60; background:#12251c; color:#d4e7dc; }
+    .notice strong { color:#83dfa9; }
+    nav { display:flex; flex-wrap:wrap; gap:8px 15px; margin:25px 0 35px; padding-bottom:20px; border-bottom:1px solid #303648; }
+    nav a { color:#d681ff; font-size:13px; }
+    h2 { margin:34px 0 14px; padding-bottom:8px; border-bottom:1px solid #41465a; color:#d681ff; font-size:21px; }
+    h3 { margin:20px 0 7px; color:#fff; font-size:16px; }
+    p,li { color:#c8cad4; }
+    ol,ul { padding-left:23px; }
+    li { margin:7px 0; }
+    .step { display:grid; grid-template-columns:34px 1fr; gap:13px; margin:13px 0; padding:15px; border-left:3px solid #C342FF; background:#141824; }
+    .step-number { display:grid; place-items:center; width:30px; height:30px; border-radius:50%; background:#C342FF; color:#fff; font-weight:700; }
+    .step h3 { margin:0 0 4px; }
+    .step p { margin:0; font-size:14px; }
+    .caution { margin:18px 0; padding:15px 17px; border-left:4px solid #FFC93C; background:#282316; color:#eee4c3; }
+    .caution strong { color:#FFC93C; }
+    .actions { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin:30px 0; }
+    .button { display:inline-block; padding:11px 18px; border:1px solid #C342FF; border-radius:4px; background:#C342FF; color:#fff; font-weight:700; text-decoration:none; }
+    .button.secondary { background:transparent; color:#d681ff; }
+    .sama-footer { margin-top:45px; padding:22px 12px; border-top:3px solid #C342FF; color:#B8BCC8; font-size:13px; text-align:center; }
+    .sama-footer strong,.sama-footer a { color:#d681ff; }
+    .sama-footer a { text-decoration:none; }
+    @media(max-width:520px) { .container { width:calc(100% - 28px); padding-top:24px; } h1 { font-size:27px; } .step { grid-template-columns:28px 1fr; gap:10px; padding:12px; } .step-number { width:26px; height:26px; font-size:13px; } }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header class="guide-header">
+      <a href="/index.html" aria-label="Retour à l’accueil SAMA CV"><img src="/assets/logo-sama-cv.svg" alt="SAMA CV"></a>
+      <h1>Guide d’utilisation</h1>
+      <p class="subtitle">Choisir un modèle, personnaliser le contenu, vérifier le PDF.</p>
+    </header>
+    <div class="notice"><strong>À propos des ATS</strong><br>Les modèles privilégient du texte sélectionnable et des rubriques explicites, mais les systèmes de recrutement varient. Aucun modèle ne garantit un score ou l’acceptation d’une candidature. Consultez les <a href="/ATS_GUIDELINES.md" style="color:#83dfa9">repères ATS</a>.</div>
+    <nav aria-label="Sommaire"><a href="#etapes">Utilisation</a><a href="#sauvegarde">Sauvegarde</a><a href="#pdf">Export PDF</a><a href="#paiement">Paiement</a><a href="#ats">Lisibilité ATS</a></nav>
+
+    <section id="etapes">
+      <h2>Utilisation</h2>
+      <div class="step"><span class="step-number">1</span><div><h3>Choisir un modèle</h3><p>La galerie propose 14 modèles en français. Les modèles 11 à 14 comprennent aussi une lettre de motivation sur une seconde page.</p></div></div>
+      <div class="step"><span class="step-number">2</span><div><h3>Ouvrir le modèle</h3><p>Utilisez les liens de la galerie. Les modèles existants demandent une session Supabase valide ; l’application doit être configurée par son administrateur pour que la connexion fonctionne.</p></div></div>
+      <div class="step"><span class="step-number">3</span><div><h3>Modifier les informations</h3><p>Cliquez sur un texte éditable pour le remplacer. Cliquez sur la photo pour choisir une image. Les expériences, formations et compétences disposent de commandes d’ajout et de suppression.</p></div></div>
+      <div class="step"><span class="step-number">4</span><div><h3>Vérifier la mise en page</h3><p>Relisez les coordonnées, dates, intitulés et sauts de page. Le mode ATS, lorsqu’il est disponible, présente le contenu sur une seule colonne.</p></div></div>
+    </section>
+
+    <section id="sauvegarde"><h2>Sauvegarde et confidentialité</h2><p>Les modifications des modèles sont sauvegardées dans le stockage du navigateur sur l’appareil utilisé. Cette sauvegarde locale ne se synchronise pas entre appareils et peut être effacée par le navigateur. Conservez une copie de votre PDF.</p></section>
+    <section id="pdf"><h2>Exporter en PDF</h2><ol><li>Choisissez « Exporter PDF » dans la barre d’outils.</li><li>Dans la boîte d’impression du navigateur, sélectionnez « Enregistrer au format PDF ».</li><li>Vérifiez les marges, les couleurs et que le texte du PDF peut être sélectionné.</li></ol></section>
+    <section id="paiement"><h2>Paiement et téléchargement</h2><div class="caution"><strong>Le lien Wave de la galerie est un paiement externe fixe.</strong> Il n’est pas relié à la validation d’une commande SAMA CV et ne débloque pas automatiquement un modèle. Ne payez que si vous avez vérifié le bénéficiaire et les conditions directement auprès du marchand.</div><p>La vérification serveur du paiement et l’octroi sécurisé d’un téléchargement restent à configurer. La saisie d’un identifiant de transaction ou le retour d’une page ne constitue pas une preuve de paiement.</p></section>
+    <section id="ats"><h2>Améliorer la lisibilité ATS</h2><ul><li>Utilisez une colonne et des titres de section explicites lorsque le portail de candidature l’exige.</li><li>Gardez le nom et les coordonnées en texte réel, pas dans une image.</li><li>Employez des dates cohérentes et des mots-clés pertinents pour l’offre, sans les répéter artificiellement.</li><li>Copiez le texte du PDF dans un éditeur et vérifiez que l’ordre des rubriques est correct.</li></ul><p>Les colonnes, icônes, photos et mises en page peuvent être interprétées différemment selon le logiciel utilisé par le recruteur. Suivez toujours les consignes du portail de candidature.</p></section>
+    <div class="actions"><a class="button" href="/index.html">Voir les modèles</a><a class="button secondary" href="/login.html">Connexion</a></div>
+  </main>
+  <footer class="sama-footer"><p>Créé par <strong>Boubacar Cissé</strong><span aria-hidden="true"> • </span><a href="tel:+221754477448">#75 447 74 48</a></p></footer>
+</body>
+</html>

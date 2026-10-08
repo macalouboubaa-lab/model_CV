@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0F19">
+  <title>Paiement Wave — SAMA CV</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png">
+  <link rel="stylesheet" href="/assets/shared.css">
+  <style>
+    body { min-height:100vh; display:flex; flex-direction:column; background:#0B0F19; color:#B8BCC8; }
+    main { width:min(100% - 32px, 560px); margin:auto; padding:32px 0 48px; }
+    .brand { display:block; width:min(100%, 310px); margin:0 auto 25px; }
+    .payment-panel { padding:28px; border:1px solid #2a3041; border-radius:8px; background:#141824; }
+    h1 { margin:0 0 8px; color:white; font:700 28px Georgia,serif; }
+    .model-label { margin:0 0 18px; }
+    .amount { display:flex; justify-content:space-between; padding:16px 0; border-block:1px solid #343a4a; color:#fff; font-weight:700; }
+    .steps { padding-left:22px; color:#d1d3dc; font-size:14px; line-height:1.7; }
+    .wave-link { display:block; margin:20px 0; padding:13px 16px; border-radius:4px; background:#27AE60; color:#fff; font-size:14px; font-weight:700; text-align:center; text-decoration:none; }
+    .wave-link:hover { background:#219A52; }
+    .notice { padding:12px; border-left:3px solid #C342FF; background:#0B0F19; color:#c8cad4; font-size:12px; line-height:1.6; }
+    label { display:block; margin:18px 0 7px; color:#fff; font-size:13px; font-weight:600; }
+    input { width:100%; min-height:44px; padding:10px 12px; border:1px solid #41485b; border-radius:4px; background:#0B0F19; color:white; font:14px Arial,sans-serif; }
+    button { width:100%; min-height:44px; margin-top:12px; border:0; border-radius:4px; background:#C342FF; color:white; font-weight:700; cursor:pointer; }
+    button:disabled { opacity:.6; cursor:wait; }
+    .message { min-height:20px; margin:12px 0 0; color:#ff777d; font-size:13px; }
+    .sama-footer { margin-top:0; }
+  </style>
+</head>
+<body>
+  <main>
+    <a href="/index.html" aria-label="Retour à SAMA CV"><img class="brand" src="/assets/logo-sama-cv.svg" alt="SAMA CV"></a>
+    <section class="payment-panel" aria-labelledby="payment-title">
+      <h1 id="payment-title">Payer 2 000 FCFA via Wave</h1>
+      <p class="model-label">Modèle sélectionné : <strong id="model-name">…</strong></p>
+      <div class="amount"><span>Montant</span><span>2.000 FCFA</span></div>
+      <ol class="steps">
+        <li>Ouvrez Wave avec le lien du marchand ci-dessous et effectuez le paiement.</li>
+        <li>Conservez l’identifiant de transaction Wave.</li>
+        <li>Collez cet identifiant pour demander une validation manuelle par l’administration.</li>
+      </ol>
+      <a class="wave-link" id="wave-payment-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Payer 2 000 FCFA via Wave — Scent &amp; Style Store</a>
+      <p class="notice" id="wave-link-status" role="status">Chargement du lien Wave Business…</p>
+      <p class="notice">Le lien Wave utilisé affiche le marchand « Scent &amp; Style Store ». La saisie de l’identifiant ne confirme pas le paiement : votre demande reste en attente de validation manuelle par l’administration.</p>
+      <form id="payment-form" novalidate>
+        <label for="transaction-id">ID de transaction Wave</label>
+        <input id="transaction-id" name="transactionId" autocomplete="off" minlength="6" required>
+        <p class="message" id="payment-message" role="alert" aria-live="polite"></p>
+        <button id="verify-button" type="submit" disabled>Soumettre à validation manuelle</button>
+      </form>
+    </section>
+  </main>
+  <footer class="sama-footer"><p>Créé par <strong>Boubacar Cissé</strong><span class="separator">•</span><a href="tel:+221754477448">#75 447 74 48</a></p></footer>
+  <script src="/assets/auth.js"></script>
+  <script>
+    const modelNames = {
+      model1:'Classique sobre', model2:'Moderne avec sidebar', model3:'Créatif avec timeline',
+      model4:'Minimaliste typographique', model5:'Deux colonnes', model6:'Élégant avec bandeau',
+      model7:'Tech développeur', model8:'Corporate', model9:'Infographique', model10:'Artistique',
+      model11:'Classique avec lettre', model12:'Moderne mauve avec lettre',
+      model13:'Élégant avec lettre', model14:'Minimaliste avec lettre'
+    };
+    const requestedModel = new URLSearchParams(window.location.search).get('model') || 'model1';
+    const modelId = Object.hasOwn(modelNames, requestedModel) ? requestedModel : 'model1';
+    document.querySelector('#model-name').textContent = modelNames[modelId];
+
+    async function submitPayment() {
+      const transactionId = document.querySelector('#transaction-id').value.trim();
+      const message = document.querySelector('#payment-message');
+      const button = document.querySelector('#verify-button');
+      if (transactionId.length < 6) {
+        message.textContent = 'L’identifiant de transaction doit contenir au moins 6 caractères.';
+        return;
+      }
+      button.disabled = true;
+      message.textContent = 'Envoi de la demande de validation…';
+      const result = await window.submitPayment(modelId, transactionId);
+      button.disabled = false;
+      if (!result.success) {
+        message.textContent = result.error || 'Le paiement n’a pas pu être vérifié.';
+        return;
+      }
+      window.location.assign(`/payment-success.html?model=${encodeURIComponent(modelId)}&status=pending`);
+    }
+
+    document.querySelector('#payment-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      await submitPayment();
+    });
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!await window.getVerifiedSession()) {
+        window.location.assign(`/login.html?next=${encodeURIComponent(`/payment.html?model=${modelId}`)}`);
+        return;
+      }
+      try {
+        const config = await window.getSamaConfig();
+        const paymentLink = document.querySelector('#wave-payment-link');
+        const linkStatus = document.querySelector('#wave-link-status');
+        if (config.wavePaymentLink) {
+          paymentLink.href = config.wavePaymentLink;
+          paymentLink.hidden = false;
+          linkStatus.hidden = true;
+          document.querySelector('#verify-button').disabled = false;
+        } else if (config.wavePaymentLinkError) {
+          linkStatus.textContent = config.wavePaymentLinkError;
+        }
+      } catch (error) {
+        document.querySelector('#wave-link-status').textContent = error.message;
+      }
+    });
+  </script>
+</body>
+</html>

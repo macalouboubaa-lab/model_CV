@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <link rel="apple-touch-icon" sizes="512x512" href="/favicon.png">
+  <meta name="theme-color" content="#0B0F19">
   <title>Modèle 6 — Élégant avec bandeau</title>
   <style>
 /* CSS commun */
@@ -73,6 +78,11 @@ body {
   margin-top: 10px; transition: all 0.2s; font-family: inherit;
 }
 .btn-add:hover { background: rgba(195,66,255,0.15); border-style: solid; }
+.sama-footer { margin-top: 40px; padding: 24px 16px; border-top: 3px solid #C342FF; background: #0B0F19; color: #B8BCC8; font: 13px Arial, sans-serif; text-align: center; }
+.sama-footer strong { color: #C342FF; font-weight: 700; }
+.sama-footer a { color: #C342FF; font-weight: 600; text-decoration: none; transition: color .2s; }
+.sama-footer a:hover { color: #A82EE0; text-decoration: underline; }
+.sama-footer .separator { margin: 0 8px; color: #4A5060; }
 @media print {
   body { background: white !important; padding-top: 0 !important; }
   .toolbar, .btn-delete, .btn-add, .no-print { display: none !important; }
@@ -121,8 +131,17 @@ body {
   
 body{background:#eceeea;color:#26342e}.cv-container{padding:0 20mm 18mm;border-top:16mm solid #284e40}.header{position:relative;margin:0 -20mm 0;padding:9mm 20mm 5mm;border:0;background:#284e40;color:white}.header-info h1{color:white;font-size:31px}.job-title{color:#e1e8e2}.profile-photo{border-color:#c5a66a}.contact-info{display:flex;gap:8px 18px;flex-wrap:wrap;margin:0 -20mm 17mm;padding:10px 20mm;border-bottom:1px solid #d9dfda;color:#657169}.section-title{color:#284e40;border-color:#d9dfda}.profile-section,.experience-section,.education-section{max-width:650px}.skills-section,.languages-section{display:inline-block;width:47%;vertical-align:top;padding-right:12px}.btn-add{color:#284e40;border-color:#284e4088;background:#284e4010}@media(max-width:800px){.cv-container{padding:0 18px 18px;border-top-width:10px}.header{margin:0 -18px;padding:22px 18px}.contact-info{margin:0 -18px 15px;padding:10px 18px}}
   </style>
+  <script src="/assets/auth.js"></script>
+  <script src="/assets/protection.js"></script>
 </head>
 <body class="model-6">
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const session = await window.getVerifiedSession();
+      if (!session) { window.location.assign('/login.html'); return; }
+      if (session.isAdmin) document.body.classList.add('admin-mode');
+    });
+  </script>
   <div class="toolbar no-print">
     <img src="assets/logo-sama-cv.svg" alt="SAMA CV" style="height: 32px; margin-right: 20px;">
     <button type="button" onclick="exportPDF()" title="Exporter en PDF">🖨️ Exporter PDF</button>
@@ -206,5 +225,6 @@ body{background:#eceeea;color:#26342e}.cv-container{padding:0 20mm 18mm;border-t
     document.addEventListener('keydown', (event) => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); saveToLocalStorage(true); } if (event.key === 'Escape') document.documentElement.classList.remove('preview'); });
 
   </script>
+  <footer class="sama-footer no-print"><p>Créé par <strong>Boubacar Cissé</strong><span class="separator">•</span><a href="tel:+221754477448">#75 447 74 48</a></p></footer>
 </body>
 </html>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Fond bleu nuit arrondi -->
+  <rect width="512" height="512" rx="96" fill="#0B0F19"/>
+  <!-- Document -->
+  <path d="M 140 120 L 340 120 L 400 180 L 400 400 L 140 400 Z" fill="#2C3E50" stroke="#C342FF" stroke-width="8" stroke-linejoin="round"/>
+  <!-- Coin plié -->
+  <path d="M 340 120 L 400 180 L 340 180 Z" fill="#FFC93C"/>
+  <!-- Étoile sur le coin -->
+  <circle cx="370" cy="145" r="14" fill="#FFC93C"/>
+  <!-- Lignes de texte -->
+  <rect x="180" y="220" width="180" height="12" fill="#95A5A6" rx="6"/>
+  <rect x="180" y="250" width="180" height="12" fill="#95A5A6" rx="6"/>
+  <rect x="180" y="280" width="130" height="12" fill="#95A5A6" rx="6"/>
+  <rect x="180" y="310" width="160" height="12" fill="#95A5A6" rx="6"/>
+  <!-- Barres colorées en bas -->
+  <rect x="180" y="350" width="40" height="10" fill="#27AE60" rx="5"/>
+  <rect x="230" y="350" width="40" height="10" fill="#F1C40F" rx="5"/>
+  <rect x="280" y="350" width="40" height="10" fill="#E74C3C" rx="5"/>
+</svg>

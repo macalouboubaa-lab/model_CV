@@ -35,12 +35,18 @@ model_CV/
 │   ├── shared.css
 │   ├── shared.js
 │   ├── auth.js
-│   ├── payment.js
 │   └── protection.js
+├── lib/
+│   └── supabase-api.js
 ├── api/
-│   └── verify-payment.js
+│   ├── config.js
+│   ├── payments.js
+│   ├── entitlements.js
+│   └── admin/
+│       └── payments.js
 ├── supabase/
-│   └── migrations.sql
+│   └── migrations/
+│       └── 001_manual_wave_payments.sql
 ├── vercel.json
 └── package.json
 ```

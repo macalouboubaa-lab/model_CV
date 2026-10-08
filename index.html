@@ -3,6 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <link rel="apple-touch-icon" sizes="512x512" href="/favicon.png">
+  <meta name="theme-color" content="#0B0F19">
   <meta name="description" content="Quatorze modèles de CV HTML à modifier dans le navigateur et exporter en PDF.">
   <title>SAMA CV | 14 modèles HTML</title>
   <link rel="stylesheet" href="assets/shared.css">
@@ -11,7 +16,15 @@
 <body>
   <header style="text-align: center; padding: 40px 20px 20px; background: white; border-bottom: 1px solid #eee;">
     <img src="assets/logo-sama-cv.svg" alt="SAMA CV" style="max-width: 400px; width: 100%; height: auto;">
+    <nav class="home-actions" aria-label="Navigation utilisateur">
+      <a href="/guide.html" class="btn-guide">Guide d’utilisation</a>
+      <a href="/login.html" class="btn-login">Connexion</a>
+    </nav>
   </header>
+  <aside class="ats-banner" aria-label="Conseil de lisibilité ATS">
+    <span class="badge-ats">Lecture ATS facilitée</span>
+    <p>Nos modèles privilégient du texte sélectionnable et des rubriques explicites. <a href="/guide.html">En savoir plus</a></p>
+  </aside>
   <main>
     <section class="intro" aria-labelledby="page-title">
       <div>
@@ -25,7 +38,7 @@
       </div>
     </section>
     <div class="gallery-head">
-      <h2>Les 14 modèles</h2>
+      <h2>Les modèles disponibles</h2>
       <label class="search"><span aria-hidden="true">⌕</span><input id="filter" type="search" placeholder="Filtrer par style" aria-label="Filtrer les modèles"></label>
     </div>
     <section class="gallery" aria-label="Modèles de CV">
@@ -88,6 +101,6 @@
     </section>
     <p class="empty" id="empty" hidden>Aucun modèle ne correspond à cette recherche.</p>
   </main>
-  <footer><span>SAMA CV</span><span>Tout reste dans votre navigateur.</span></footer>
+  <footer class="sama-footer"><p>Créé par <strong>Boubacar Cissé</strong><span class="separator">•</span><a href="tel:+221754477448">#75 447 74 48</a></p></footer>
 </body>
 </html>

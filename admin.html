@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0F19">
+  <title>Administration — SAMA CV</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png">
+  <link rel="stylesheet" href="/assets/shared.css">
+  <style>
+    body { min-height:100vh; background:#0B0F19; color:#B8BCC8; }
+    .admin-header { display:flex; justify-content:space-between; align-items:center; gap:18px; padding:16px clamp(16px,4vw,48px); border-bottom:1px solid #292f3e; }
+    .admin-logo { display:block; width:210px; max-width:58vw; }
+    .logout { padding:9px 13px; border:1px solid #464c5e; border-radius:4px; background:#171c29; color:white; font-weight:600; cursor:pointer; }
+    main { max-width:1240px; margin:0 auto; padding:34px 22px 54px; }
+    h1,h2 { color:white; }
+    h1 { margin:0 0 24px; font:700 30px Georgia,serif; }
+    h2 { margin:32px 0 12px; font-size:17px; }
+    .stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .stat { padding:18px; border:1px solid #2a3041; border-radius:6px; background:#141824; }
+    .stat span { display:block; color:#B8BCC8; font-size:12px; }
+    .stat strong { display:block; margin-top:8px; color:#d681ff; font-size:26px; }
+    .table-wrap { overflow-x:auto; border:1px solid #2a3041; border-radius:6px; background:#141824; }
+    table { width:100%; border-collapse:collapse; min-width:680px; }
+    th,td { padding:11px 13px; border-bottom:1px solid #2a3041; text-align:left; font-size:12px; }
+    th { color:#e5e6ed; background:#191e2b; }
+    tr:last-child td { border-bottom:0; }
+    .table-action { padding:6px 9px; border:1px solid #8e3441; border-radius:4px; background:#331c25; color:#ff9ba3; cursor:pointer; }
+    .table-action.approve { margin-right:6px; border-color:#26864c; background:#173324; color:#9df0b7; }
+    .model-list { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+    .model-link { display:flex; justify-content:space-between; gap:8px; padding:11px; border:1px solid #343b4d; border-radius:4px; color:#e5e6ed; text-decoration:none; }
+    .model-link:hover { border-color:#C342FF; }
+    .model-link span { color:#d681ff; }
+    .status { min-height:22px; margin:14px 0; color:#ff979d; font-size:13px; }
+    .sama-footer { margin-top:0; }
+    @media(max-width:720px) { .stats { grid-template-columns:1fr; } .model-list { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  </style>
+</head>
+<body>
+  <header class="admin-header">
+    <a href="/index.html"><img class="admin-logo" src="/assets/logo-sama-cv.svg" alt="SAMA CV"></a>
+    <button class="logout" id="logout-button" type="button">Déconnexion</button>
+  </header>
+  <main>
+    <h1>Administration</h1>
+    <p class="status" id="admin-status" role="status" aria-live="polite">Vérification de votre accès…</p>
+    <section aria-labelledby="payments-title">
+      <h2 id="payments-title">Validation manuelle des paiements Wave</h2>
+      <p>Vérifiez la transaction dans votre compte Wave Business avant de l’approuver. Une approbation enregistre le droit d’accès, mais ne livre pas encore de PDF privé.</p>
+      <div class="table-wrap"><table><thead><tr><th>Utilisateur</th><th>Modèle</th><th>Montant</th><th>ID de transaction</th><th>Date</th><th>Statut</th><th>Décision</th></tr></thead><tbody id="payments-body"></tbody></table></div>
+    </section>
+    <section aria-labelledby="models-title">
+      <h2 id="models-title">Modèles</h2>
+      <div class="model-list" id="model-list"></div>
+    </section>
+  </main>
+  <footer class="sama-footer"><p>Créé par <strong>Boubacar Cissé</strong><span class="separator">•</span><a href="tel:+221754477448">#75 447 74 48</a></p></footer>
+  <script src="/assets/auth.js"></script>
+  <script>
+    const statusMessage = document.querySelector('#admin-status');
+    const paymentBody = document.querySelector('#payments-body');
+
+    function addCell(row, value) {
+      const cell = document.createElement('td');
+      cell.textContent = value ?? '—';
+      row.appendChild(cell);
+      return cell;
+    }
+
+    function dateLabel(value) {
+      if (!value) return '—';
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString('fr-FR');
+    }
+
+    function showModels() {
+      const modelList = document.querySelector('#model-list');
+      for (let modelNumber = 1; modelNumber <= 14; modelNumber += 1) {
+        const modelId = `model${modelNumber}`;
+        const link = document.createElement('a');
+        link.className = 'model-link';
+        link.href = `/${modelId}.html`;
+        link.innerHTML = `<strong>Modèle ${modelNumber}</strong><span>Télécharger ↗</span>`;
+        modelList.appendChild(link);
+      }
+    }
+
+    async function loadManualPayments(session) {
+      const config = await window.getSamaConfig();
+      const response = await fetch(config.adminPaymentsEndpoint, {
+        headers: { Authorization: `Bearer ${session.accessToken}` }
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || 'Impossible de charger les demandes Wave.');
+      paymentBody.replaceChildren();
+
+      for (const payment of data.payments || []) {
+        const row = document.createElement('tr');
+        addCell(row, payment.user_email);
+        addCell(row, payment.model_id);
+        addCell(row, `${Number(payment.amount_xof || 0).toLocaleString('fr-FR')} FCFA`);
+        addCell(row, payment.transaction_id);
+        addCell(row, dateLabel(payment.created_at));
+        const statusLabel = { pending: 'En attente', approved: 'Approuvé', rejected: 'Refusé' }[payment.status] || 'Inconnu';
+        addCell(row, statusLabel);
+        const actionCell = addCell(row, '');
+        if (payment.status === 'pending') {
+          for (const decision of ['approved', 'rejected']) {
+            const button = document.createElement('button');
+            button.className = `table-action ${decision === 'approved' ? 'approve' : ''}`;
+            button.type = 'button';
+            button.textContent = decision === 'approved' ? 'Approuver' : 'Refuser';
+            button.addEventListener('click', () => reviewPayment(session, payment.id, decision, button));
+            actionCell.appendChild(button);
+          }
+        }
+      }
+    }
+
+    async function reviewPayment(session, paymentId, decision, button) {
+      const confirmation = decision === 'approved'
+        ? 'Confirmer l’approbation après vérification de la transaction dans Wave ?'
+        : 'Refuser cette demande de paiement ?';
+      if (!window.confirm(confirmation)) return;
+      button.disabled = true;
+      try {
+        const config = await window.getSamaConfig();
+        const response = await fetch(config.adminPaymentsEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.accessToken}`
+          },
+          body: JSON.stringify({ paymentId, decision })
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || 'La décision n’a pas été enregistrée.');
+        await loadManualPayments(session);
+        statusMessage.textContent = 'Décision enregistrée.';
+      } catch (error) {
+        statusMessage.textContent = error.message;
+        button.disabled = false;
+      }
+    }
+
+    document.querySelector('#logout-button').addEventListener('click', () => window.logout());
+    document.addEventListener('DOMContentLoaded', async () => {
+      showModels();
+      const session = await window.requireAdmin();
+      if (!session) return;
+      try {
+        await loadManualPayments(session);
+        statusMessage.textContent = '';
+      } catch (error) {
+        statusMessage.textContent = error.message;
+      }
+    });
+  </script>
+</body>
+</html>

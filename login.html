@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0F19">
+  <title>Connexion — SAMA CV</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png">
+  <link rel="stylesheet" href="/assets/shared.css">
+  <style>
+    body { min-height:100vh; display:flex; flex-direction:column; background:#0B0F19; color:#B8BCC8; }
+    main { width:min(100% - 32px, 440px); margin:auto; padding:34px 0 50px; }
+    .brand { display:block; width:min(100%, 320px); height:auto; margin:0 auto 30px; }
+    .form-panel { padding:30px; border:1px solid #2a3041; border-radius:8px; background:#141824; }
+    h1 { margin:0 0 8px; color:white; font:700 28px Georgia,serif; }
+    .intro { margin:0 0 24px; color:#B8BCC8; font-size:14px; line-height:1.55; }
+    label { display:block; margin:15px 0 6px; color:#e4e5eb; font-size:13px; font-weight:600; }
+    input { width:100%; min-height:44px; padding:10px 12px; border:1px solid #41485b; border-radius:4px; background:#0B0F19; color:white; font:14px Arial,sans-serif; }
+    input:focus-visible, button:focus-visible, a:focus-visible { outline:2px solid #C342FF; outline-offset:3px; }
+    .password-field { display:flex; gap:8px; }
+    .password-field input { min-width:0; }
+    .toggle-password { width:48px; border:1px solid #41485b; border-radius:4px; background:#222839; color:white; cursor:pointer; }
+    .submit { width:100%; min-height:46px; margin-top:22px; border:0; border-radius:4px; background:#C342FF; color:white; font-size:14px; font-weight:700; cursor:pointer; }
+    .submit:hover { background:#A82EE0; }
+    .submit:disabled { opacity:.65; cursor:wait; }
+    .form-error { min-height:20px; margin:12px 0 0; color:#ff777d; font-size:13px; }
+    .form-success { margin:12px 0 0; color:#70dda2; font-size:13px; line-height:1.5; }
+    .switch { margin:20px 0 0; text-align:center; font-size:13px; }
+    .switch a { color:#d681ff; }
+    .sama-footer { margin-top:0; }
+    @media(max-width:480px) { .form-panel { padding:23px 18px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <a href="/index.html" aria-label="Retour à l’accueil SAMA CV"><img class="brand" src="/assets/logo-sama-cv.svg" alt="SAMA CV"></a>
+    <section class="form-panel" aria-labelledby="login-title">
+      <h1 id="login-title">Connexion</h1>
+      <p class="intro">Connectez-vous pour retrouver votre espace SAMA CV.</p>
+      <form id="login-form" novalidate>
+        <p class="form-success" id="created-message" role="status" aria-live="polite"></p>
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="username" required>
+        <label for="password">Mot de passe</label>
+        <div class="password-field">
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+          <button class="toggle-password" id="toggle-password" type="button" aria-label="Afficher le mot de passe" aria-pressed="false">◉</button>
+        </div>
+        <p class="form-error" id="form-error" role="alert" aria-live="polite"></p>
+        <button class="submit" id="submit-button" type="submit">Se connecter</button>
+      </form>
+      <p class="switch">Pas encore de compte ? <a href="/signup.html">S’inscrire</a></p>
+    </section>
+  </main>
+  <footer class="sama-footer"><p>Créé par <strong>Boubacar Cissé</strong><span class="separator">•</span><a href="tel:+221754477448">#75 447 74 48</a></p></footer>
+  <script src="/assets/auth.js"></script>
+  <script>
+    const form = document.querySelector('#login-form');
+    const password = document.querySelector('#password');
+    const errorMessage = document.querySelector('#form-error');
+    const submitButton = document.querySelector('#submit-button');
+    if (new URLSearchParams(window.location.search).get('created') === '1') {
+      document.querySelector('#created-message').textContent = 'Compte créé. Connectez-vous pour continuer. Si la confirmation email est activée, confirmez d’abord votre adresse.';
+    }
+
+    document.querySelector('#toggle-password').addEventListener('click', (event) => {
+      const visible = password.type === 'password';
+      password.type = visible ? 'text' : 'password';
+      event.currentTarget.setAttribute('aria-pressed', String(visible));
+      event.currentTarget.setAttribute('aria-label', visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+    });
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      errorMessage.textContent = '';
+      submitButton.disabled = true;
+      const result = await window.login(form.email.value, password.value);
+      submitButton.disabled = false;
+      if (!result.success) {
+        errorMessage.textContent = result.error || 'Connexion impossible. Réessayez.';
+        return;
+      }
+      if (result.isAdmin) {
+        window.location.assign('/admin.html');
+        return;
+      }
+      const requestedNext = new URLSearchParams(window.location.search).get('next');
+      const safeNext = requestedNext && requestedNext.startsWith('/') && !requestedNext.startsWith('//') && !requestedNext.includes('\\')
+        ? requestedNext
+        : '/index.html';
+      window.location.assign(safeNext);
+    });
+  </script>
+</body>
+</html>

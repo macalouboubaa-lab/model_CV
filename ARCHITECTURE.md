@@ -47,6 +47,14 @@ La migration de départ définit `payments` et `entitlements`. Chaque droit reli
 
 Le rôle admin est attribué hors du parcours d’inscription, par une procédure contrôlée. Une adresse email seule ou une variable JavaScript ne suffit pas à établir ce rôle.
 
+### État du projet Supabase communiqué
+
+Les notes du propriétaire du 8 octobre 2026 indiquent qu’un projet Supabase nommé `rdsg-fitness` aurait été créé en Europe de l’Ouest, avec PostgreSQL et l’extension `pgcrypto`. Le nom est à confirmer et l’URL réelle du projet n’a pas été communiquée ; `https://[ton-projet].supabase.co` est un exemple, pas une URL exploitable. Ces éléments ne prouvent pas que le projet est relié à ce dépôt ni que ses paramètres ont été testés.
+
+Les mêmes notes signalent une table `public.users` comportant `id`, `email`, `password_hash`, `created_at`, `last_login`, `is_admin` et `is_banned`. Cette table n’est pas définie par la migration suivie dans ce dépôt et l’application s’authentifie auprès de Supabase Auth (`auth.users`). Supabase Auth doit rester la source de vérité pour les identités et mots de passe : ne pas recopier les mots de passe ou leurs hachages dans `public.users`, ni utiliser ses colonnes de rôle comme autorité sans migration et contrôles serveur explicites. La correspondance et l’usage éventuel de cette table doivent être vérifiés dans le tableau de bord avant toute intégration.
+
+La migration `supabase/migrations/001_manual_wave_payments.sql` crée les tables `payments` et `entitlements` liées à `auth.users`. Elle ne crée pas `public.users` et l’activation de `pgcrypto` n’est pas une preuve que cette migration applicative a été exécutée.
+
 ## Paiement Wave manuel
 
 Le lien de paiement est public et le client soumet ensuite un identifiant de transaction. L’API enregistre le montant fixe de 2 000 XOF et l’état `pending` ; elle ne valide jamais automatiquement cet identifiant. Un admin vérifie la transaction dans le tableau de bord Wave Business, puis approuve ou refuse la demande. La fonction SQL verrouille la demande et enregistre le droit de façon atomique.
@@ -71,6 +79,8 @@ Les noms définitifs dépendront des SDK/API retenus. Les secrets doivent être 
 - Identifiants/API key Wave Business côté serveur uniquement.
 - Secret de signature webhook si Wave en fournit un.
 - URL publique de l’application et URL webhook configurée chez Wave.
+
+Les notes du propriétaire indiquent que `package.json` et `vercel.json` ont été créés le 8 octobre 2026, et que des configurations Next.js/Tailwind/PostCSS/TypeScript héritées sont inutilisées pour le site statique. Ces fichiers de configuration ne sont pas présents dans le checkout examiné ; leur emplacement et leur état doivent être confirmés avant de s’appuyer sur ces notes pour déployer. Aucun nom de projet ou URL Supabase réelle ne doit être déduit des exemples.
 
 ## Déploiement
 

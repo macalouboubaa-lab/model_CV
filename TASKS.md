@@ -1,6 +1,6 @@
 # TASKS — SAMA CV
 
-État mis à jour : 2026-10-08.
+État mis à jour : 2026-10-09.
 
 ## Terminé
 
@@ -19,10 +19,14 @@
 - [x] Implémenter le squelette du flux Wave manuel : demandes en attente, API d’administration et migration SQL avec RLS (configuration et tests réels encore requis).
 - [x] Lire les variables publiques Supabase via `/api/config` et prendre en charge les noms d’environnement Vercel `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 - [x] Ne pas afficher de lien de téléchargement après soumission ou approbation tant que la génération privée du PDF n’est pas implémentée.
+- [x] Documenter les informations de configuration Supabase communiquées et les distinguer des éléments vérifiés dans le dépôt.
 
 ## À faire
 
 - [ ] Valider le flux commercial complet avec les paramètres réels Supabase, Wave et Vercel avant tout lancement.
+- [ ] Confirmer le nom réel et l’URL du projet Supabase (les notes donnent `rdsg-fitness` « à vérifier » et une URL générique).
+- [ ] Vérifier dans Supabase si `public.users` existe, son usage et ses politiques ; conserver Supabase Auth (`auth.users`) comme source de vérité et ne pas stocker de `password_hash` applicatif.
+- [ ] Récupérer et vérifier `package.json` et `vercel.json` : ils sont mentionnés dans les notes du 8 octobre mais absents du checkout examiné. Confirmer aussi si les configurations héritées Next.js/Tailwind/PostCSS/TypeScript sont présentes et réellement inutilisées.
 - [ ] Obtenir et confirmer la documentation/API Wave Business, les méthodes de signature webhook, le pays, la devise et le sandbox.
 - [ ] Configurer le projet Supabase, le mode de confirmation email et la procédure de provisionnement admin sans mot de passe codé en dur.
 - [ ] Appliquer et tester `supabase/migrations/001_manual_wave_payments.sql` sur le projet Supabase.
@@ -44,3 +48,5 @@
 - La clé serveur Supabase n’a pas été ajoutée par choix de l’utilisateur ; les endpoints d’administration et de paiement resteront indisponibles jusqu’à sa configuration.
 - Choix du fournisseur de stockage privé, de la durée du lien signé et du format des données de génération du PDF pendant l’implémentation.
 - Procédure sécurisée de création du premier compte administrateur.
+- La migration `001_manual_wave_payments.sql` et le schéma signalé de `public.users` n’ont pas été vérifiés dans le projet Supabase distant.
+- Le brief du favicon mentionne un éclair mauve ; le SVG présent dans ce checkout montre un document bordé de mauve avec un coin plié et une étoile jaune. Confirmer si l’icône doit être ajustée.

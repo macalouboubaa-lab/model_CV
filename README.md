@@ -28,6 +28,17 @@ Les pages d’inscription, de connexion et de paiement nécessitent des variable
 
 Le lien Wave utilisé par le parcours SAMA CV affiche le marchand « Scent & Style Store » ; le propriétaire du projet a confirmé son utilisation. Le paiement est soumis à une validation manuelle par un administrateur. Ces fonctions ne sont pas actives tant que la migration SQL n’est pas appliquée et que les clés ne sont pas configurées. Une validation ne rend pas encore disponible le téléchargement privé du PDF ; les fichiers HTML des modèles restent publics.
 
+L’application utilise Supabase Auth pour les identités. Les informations de configuration ou de schéma mentionnées dans les notes du projet ne sont pas nécessairement appliquées à l’instance utilisée par ce dépôt ; vérifier notamment le projet, son URL et l’application des migrations avant tout déploiement.
+
+## Documentation du projet
+
+- [Règles du projet](./PROJECT_RULES.md)
+- [Architecture et configuration](./ARCHITECTURE.md)
+- [Suivi des tâches](./TASKS.md)
+- [Historique des changements](./CHANGELOG.md)
+- [Guide ATS](./ATS_GUIDELINES.md)
+- [Journal de conception](./JOURNAL_CONCEPTION.md)
+
 ## Modèles
 
 | Fichier | Style |

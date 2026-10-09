@@ -2,6 +2,13 @@
 
 Les changements notables du projet sont consignés ici, du plus récent au plus ancien.
 
+## 2026-10-09 — Synchronisation de la documentation de configuration
+
+- Ajout des notes communiquées sur le projet Supabase, PostgreSQL, `pgcrypto` et le schéma signalé de `public.users`, en précisant les éléments non vérifiés.
+- Rappel que l’application utilise Supabase Auth (`auth.users`) et que `password_hash` ne doit pas devenir une seconde source de vérité pour les mots de passe.
+- Signalement des fichiers `package.json`, `vercel.json` et `JOURNAL_CONCEPTION.md` mentionnés dans les notes mais absents du checkout examiné.
+- Ajout d’une tâche de vérification sur l’écart entre le brief du favicon et le SVG actuellement présent.
+
 ## 2026-10-08 — Paiement Wave avec validation manuelle (préparation)
 
 - Ajout du chargement runtime des variables publiques Supabase configurées dans Vercel.

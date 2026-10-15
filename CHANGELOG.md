@@ -6,7 +6,7 @@ Les changements notables du projet sont consignés ici, du plus récent au plus 
 
 - Les modèles s’ouvrent en aperçu sans connexion ; l’édition demande une connexion ou une inscription.
 - Le paiement Wave ne s’affiche qu’après une demande de téléchargement et le PDF reste vérifié côté serveur.
-- Restauration du floutage photo avant validation du droit, renforcé sur mobile et à l’impression ; le PDF payé reste net.
+- Remplacement du floutage photo par un filigrane SAMA CV répétitif et incliné avec logo central ; le PDF payé reste sans filigrane.
 - Correction de l’initialisation des commandes communes dans `assets/protection.js`.
 
 ## 2026-10-09 — Synchronisation de la documentation de configuration

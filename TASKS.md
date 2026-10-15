@@ -26,7 +26,7 @@
 - [x] Uniformiser l’affichage des portraits à 96 × 96 px dans les quatorze modèles existants.
 - [x] Ajouter la découverte automatique des modèles `modelN.html`, le routage d’aperçu public, la génération PDF contrôlée, le catalogue galerie/admin et la validation des identifiants jusqu’à model9999.
 - [x] Servir l’aperçu des modèles sans connexion, réserver l’édition aux sessions connectées et n’ouvrir le paiement qu’après un clic sur le téléchargement.
-- [x] Restaurer le floutage des portraits avant paiement, renforcé sur mobile et à l’impression, et retirer le flou du PDF après validation du droit.
+- [x] Ajouter un filigrane SAMA CV répétitif sur l’aperçu et l’impression, absent pour un utilisateur autorisé et dans le PDF vérifié.
 
 ## À faire
 

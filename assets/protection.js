@@ -30,19 +30,22 @@
     style.id = 'sama-shared-styles';
     style.textContent = `
       #cvContainer .profile-photo, #cvContainer .cv-profile-photo { box-sizing:border-box!important; width:96px!important; height:96px!important; max-width:100%; object-fit:cover!important; }
-      body:not(.paid-user) #cvContainer .profile-photo, body:not(.paid-user) #cvContainer .cv-profile-photo { filter:blur(4px) saturate(.7)!important; transition:filter .3s ease; }
-      body:not(.paid-user) #cvContainer .profile-photo:hover, body:not(.paid-user) #cvContainer .cv-profile-photo:hover { filter:blur(4px) saturate(.7)!important; }
-      body.paid-user #cvContainer .profile-photo, body.paid-user #cvContainer .cv-profile-photo { filter:none!important; }
-      @media(max-width:768px) {
-        body:not(.paid-user) #cvContainer .profile-photo, body:not(.paid-user) #cvContainer .cv-profile-photo { filter:blur(6px) saturate(.6)!important; }
-        body.paid-user #cvContainer .profile-photo, body.paid-user #cvContainer .cv-profile-photo { filter:none!important; }
-      }
-      @media print {
-        body:not(.paid-user) #cvContainer .profile-photo, body:not(.paid-user) #cvContainer .cv-profile-photo { filter:blur(6px) saturate(.5)!important; }
-        body.paid-user #cvContainer .profile-photo, body.paid-user #cvContainer .cv-profile-photo { filter:none!important; }
-      }
       .sama-generated-toolbar { display:flex; justify-content:center; gap:8px; padding:12px; }
       .sama-generated-toolbar button { padding:9px 14px; border:0; border-radius:5px; background:#27AE60; color:#fff; font-weight:700; cursor:pointer; }
+      #sama-watermark { position:fixed; inset:-30%; z-index:9998; overflow:hidden; pointer-events:none; }
+      .watermark-content { position:absolute; inset:0; display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); grid-template-rows:repeat(5,minmax(0,1fr)); align-items:center; justify-items:center; transform:rotate(-30deg) scale(1.15); }
+      .sama-watermark-item { display:flex; flex-direction:column; align-items:center; gap:7px; color:#1a1a1a; font-family:Arial,sans-serif; text-align:center; opacity:.15; white-space:nowrap; }
+      .sama-watermark-item strong { font-size:32px; font-weight:700; letter-spacing:2px; }
+      .sama-watermark-item small { font-size:16px; font-style:italic; font-weight:400; }
+      .sama-watermark-logo { position:absolute; top:50%; left:50%; width:300px; height:auto; opacity:.08; transform:translate(-50%,-50%) rotate(-30deg); }
+      body.paid-user #sama-watermark, body.admin-mode #sama-watermark { display:none!important; }
+      @media(max-width:768px) {
+        .watermark-content { grid-template-columns:repeat(4,minmax(0,1fr)); grid-template-rows:repeat(5,minmax(0,1fr)); }
+        .sama-watermark-item:nth-child(n+21) { display:none; }
+        .sama-watermark-item strong { font-size:20px; }
+        .sama-watermark-item small { font-size:12px; }
+        .sama-watermark-logo { width:180px; }
+      }
       #sama-banner { position:fixed; inset:auto 0 0; z-index:9999; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:10px; padding:12px 18px; border-top:3px solid #C342FF; background:#0B0F19; color:white; font:13px Arial,sans-serif; }
       #sama-banner .separator { color:#4A5060; }
       #sama-banner button { padding:8px 14px; border:0; border-radius:5px; background:#27AE60; color:white; font:700 13px Arial,sans-serif; cursor:pointer; }
@@ -54,11 +57,11 @@
       body.edit-mode .sama-edit-button { display:none!important; }
       #sama-protection-warning { position:fixed; z-index:10001; top:18px; left:50%; padding:10px 16px; border:1px solid #ff7474; border-radius:5px; background:#8f2020; color:white; font:600 13px Arial,sans-serif; opacity:0; pointer-events:none; transform:translate(-50%,-8px); transition:opacity .2s,transform .2s; }
       #sama-protection-warning.warning-visible { opacity:1; transform:translate(-50%,0); }
-      body.admin-mode #sama-watermark, body.admin-mode #sama-banner { display:none!important; }
-      @media(max-width:600px) { .watermark-content { inset:-12%; grid-template-columns:repeat(2,1fr); grid-template-rows:repeat(5,1fr); } .watermark-brand { font-size:21px; } #sama-banner { gap:6px; padding:8px 10px; font-size:11px; } #sama-banner button { font-size:11px; padding:6px 10px; } }
+      body.admin-mode #sama-banner { display:none!important; }
+      @media(max-width:600px) { #sama-banner { gap:6px; padding:8px 10px; font-size:11px; } #sama-banner button { font-size:11px; padding:6px 10px; } }
       @media print {
-        body:not(.admin-mode) #sama-watermark { display:block!important; opacity:1!important; }
-        body:not(.admin-mode) .watermark-content { opacity:0.4!important; }
+        body:not(.paid-user):not(.admin-mode) #sama-watermark { display:block!important; opacity:1!important; }
+        body:not(.paid-user):not(.admin-mode) .sama-watermark-item { opacity:.25; }
         #sama-banner, .sama-generated-toolbar { display:none!important; }
       }
     `;
@@ -267,17 +270,31 @@
     const editButton = document.querySelector('.sama-edit-button');
     if (editButton) editButton.textContent = session ? 'Modifier ce modèle' : 'Se connecter pour modifier';
 
-    const watermarkMessage = isPaid ? 'Paiement validé' : 'Aperçu — Photo protégée';
-    const watermark = document.createElement('div');
-    watermark.id = 'sama-watermark';
-    watermark.setAttribute('aria-hidden', 'true');
-    watermark.innerHTML = `<div class="watermark-content">${Array.from({ length: 12 }, () => `
-      <div class="watermark-text">
-        <span class="watermark-brand">SAMA CV</span>
-        <span class="watermark-msg">${watermarkMessage}</span>
-        <span class="watermark-url">samacv.com</span>
-      </div>`).join('')}</div>`;
-    document.body.appendChild(watermark);
+    if (!isPaid && !session?.isAdmin) {
+      const watermark = document.createElement('div');
+      watermark.id = 'sama-watermark';
+      watermark.setAttribute('aria-hidden', 'true');
+
+      const watermarkContent = document.createElement('div');
+      watermarkContent.className = 'watermark-content';
+      for (let index = 0; index < 40; index += 1) {
+        const item = document.createElement('span');
+        item.className = 'sama-watermark-item';
+        const title = document.createElement('strong');
+        title.textContent = 'BIENVENUE À SAMA CV';
+        const subtitle = document.createElement('small');
+        subtitle.textContent = 'Créez, modifiez, puis téléchargez votre CV';
+        item.append(title, subtitle);
+        watermarkContent.appendChild(item);
+      }
+
+      const logo = document.createElement('img');
+      logo.className = 'sama-watermark-logo';
+      logo.src = '/assets/logo-sama-cv.svg';
+      logo.alt = '';
+      watermark.append(watermarkContent, logo);
+      document.body.appendChild(watermark);
+    }
 
     const banner = document.createElement('div');
     banner.id = 'sama-banner';

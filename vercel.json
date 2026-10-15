@@ -13,9 +13,13 @@
     { "source": "/model11.html", "destination": "/api/protected-model?model=model11" },
     { "source": "/model12.html", "destination": "/api/protected-model?model=model12" },
     { "source": "/model13.html", "destination": "/api/protected-model?model=model13" },
-    { "source": "/model14.html", "destination": "/api/protected-model?model=model14" }
+    { "source": "/model14.html", "destination": "/api/protected-model?model=model14" },
+    { "source": "/model:modelNumber([1-9][0-9]*).html", "destination": "/api/protected-model?model=model:modelNumber" }
   ],
   "functions": {
+    "api/models.js": {
+      "includeFiles": "model*.html"
+    },
     "api/download-pdf.js": {
       "maxDuration": 60,
       "includeFiles": "{model*.html,assets/**,node_modules/@sparticuz/chromium/**}"

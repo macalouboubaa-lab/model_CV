@@ -104,7 +104,7 @@
   <footer class="sama-footer"><p>Créé par <strong>Boubacar Cissé</strong><span class="separator">•</span><a href="tel:+221754477448">#75 447 74 48</a></p></footer>
   <script src="/assets/auth.js"></script>
   <script>
-    document.querySelectorAll('.template').forEach((link) => {
+    function attachTemplateLink(link) {
       link.addEventListener('click', async (event) => {
         event.preventDefault();
         const modelId = link.getAttribute('href').replace('.html', '');
@@ -122,7 +122,62 @@
           window.alert(error.message);
         }
       });
-    });
+    }
+
+    function addDynamicModelCard(modelId) {
+      if (document.querySelector(`.template[href="${modelId}.html"]`)) return;
+
+      const modelNumber = modelId.slice(5);
+      const link = document.createElement('a');
+      link.className = 'template';
+      link.href = `${modelId}.html`;
+      link.dataset.tags = 'nouveau modèle cv';
+
+      const preview = document.createElement('div');
+      preview.className = 'preview preview-classic';
+      preview.textContent = `SAMA CV · ${modelId.toUpperCase()}`;
+
+      const info = document.createElement('div');
+      info.className = 'template-info';
+      const number = document.createElement('span');
+      number.className = 'number';
+      number.textContent = modelNumber.padStart(2, '0');
+      const description = document.createElement('div');
+      const title = document.createElement('h3');
+      title.textContent = `Modèle ${modelNumber}`;
+      const subtitle = document.createElement('p');
+      subtitle.textContent = 'Nouveau modèle';
+      const arrow = document.createElement('span');
+      arrow.className = 'arrow';
+      arrow.textContent = '↗';
+      description.append(title, subtitle);
+      info.append(number, description, arrow);
+      link.append(preview, info);
+      document.querySelector('.gallery').appendChild(link);
+      attachTemplateLink(link);
+    }
+
+    document.querySelectorAll('.template').forEach(attachTemplateLink);
+
+    fetch('/api/models', { headers: { Accept: 'application/json' } })
+      .then(async (response) => {
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !Array.isArray(result.models)) {
+          throw new Error(result.error || 'Le catalogue des modèles est indisponible.');
+        }
+        return result.models;
+      })
+      .then((models) => models
+        .filter((modelId) => /^model[1-9]\d{0,3}$/.test(modelId))
+        .forEach(addDynamicModelCard))
+      .catch((error) => {
+        console.error('Le catalogue des nouveaux modèles n’a pas pu être chargé:', error.message);
+        const status = document.createElement('p');
+        status.className = 'empty';
+        status.setAttribute('role', 'alert');
+        status.textContent = 'Les nouveaux modèles ne sont pas disponibles pour le moment.';
+        document.querySelector('.gallery-head').appendChild(status);
+      });
   </script>
 </body>
 </html>

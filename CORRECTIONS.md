@@ -2,7 +2,7 @@
 
 ## Livraison des modèles et génération PDF
 
-- Les URLs de `model1.html` à `model14.html` sont réécrites vers une fonction serveur qui vérifie la session Supabase et le droit au modèle avant de retourner le HTML. Les administrateurs conservent leur accès.
+- Les URLs `modelN.html` sont réécrites vers une fonction serveur qui vérifie la session Supabase et le droit au modèle avant de retourner le HTML. Les administrateurs conservent leur accès.
 - La session client est synchronisée vers le cookie serveur `HttpOnly`, `Secure`, `SameSite=Lax`, utilisé lors des navigations HTML. La déconnexion supprime aussi ce cookie.
 - `api/download-pdf.js` vérifie de nouveau la session et le droit, puis rend le CV édité dans le modèle source de confiance avec Chromium. Le contenu transmis est nettoyé avant injection ; les scripts et les images distantes ne sont pas chargés pour le rendu.
 - Le téléchargement est disponible depuis la page de suivi après validation et depuis le bouton d’export d’un modèle autorisé. La page de suivi utilise la sauvegarde locale et permet d’ouvrir le modèle s’il n’existe pas encore de CV sauvegardé.

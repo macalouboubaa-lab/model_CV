@@ -46,7 +46,7 @@ body {
 }
 .profile-photo {
   cursor: pointer; transition: all 0.2s; border-radius: 50%;
-  object-fit: cover; background: #eee;
+  width: 96px; height: 96px; object-fit: cover; background: #eee;
 }
 .profile-photo:hover { opacity: 0.85; transform: scale(1.02); }
 [contenteditable="true"] {
@@ -126,7 +126,7 @@ body {
     .preview body { padding-top: 0; }
     .saving { color: #fbbf24 !important; }.saved { color: #4ade80 !important; }.error { color: #ef4444 !important; }
     @media (max-width: 800px) { .cv-container { width: 100%; min-height: 0; margin: 15px auto; padding: 18px; box-shadow: none; } .toolbar { gap: 6px; padding: 8px; } .toolbar button { padding: 6px 9px; font-size: 11px; } .toolbar .save-status { display: none; } }
-    @media (max-width: 480px) { body { padding-top: 112px; } .header { gap: 13px; } .profile-photo { width: 82px; height: 82px; } .header-info h1 { font-size: 22px; } }
+    @media (max-width: 480px) { body { padding-top: 112px; } .header { gap: 13px; } .header-info h1 { font-size: 22px; } }
     @media print { body { padding: 0; background: white; } .toolbar, .btn-delete, .btn-add, .no-print { display: none !important; } .cv-container { width: 100%; min-height: auto; margin: 0; padding: 15mm; box-shadow: none; } [contenteditable="true"]:hover, [contenteditable="true"]:focus { background: transparent !important; outline: none !important; } .experience-item, .education-item, .section { break-inside: avoid; } * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } @page { size: A4; margin: 0; } }
   
 body{background:#e8ecee;color:#243541}.cv-container{padding:0 20mm 18mm}.header{position:relative;align-items:center;margin:0 -20mm 0;padding:12mm 20mm;background:#284c61;color:white;border:0}.header-info h1{color:white;font-size:29px}.job-title{color:#dce7ec}.profile-photo{border-color:white}.contact-info{display:flex;gap:8px 16px;flex-wrap:wrap;margin:0 -20mm 16mm;padding:10px 20mm;border-bottom:1px solid #d7dfe3;color:#65737b}.profile-section,.experience-section,.education-section{max-width:650px}.skills-section,.languages-section{display:inline-block;width:47%;vertical-align:top;padding-right:14px}.section-title{color:#284c61;border-color:#d7dfe3}.btn-add{color:#284c61;border-color:#284c6188;background:#284c6110}@media(max-width:800px){.cv-container{padding:0 18px 18px}.header{margin:0 -18px;padding:24px 18px}.contact-info{margin:0 -18px 15px;padding:10px 18px}}

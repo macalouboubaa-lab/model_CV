@@ -62,8 +62,9 @@
       model13:'Élégant avec lettre', model14:'Minimaliste avec lettre'
     };
     const requestedModel = new URLSearchParams(window.location.search).get('model') || 'model1';
-    const modelId = Object.hasOwn(modelNames, requestedModel) ? requestedModel : 'model1';
-    document.querySelector('#model-name').textContent = modelNames[modelId];
+    const modelId = /^model[1-9]\d{0,3}$/.test(requestedModel) ? requestedModel : 'model1';
+    document.querySelector('#model-name').textContent =
+      modelNames[modelId] || `Modèle ${modelId.slice(5)}`;
 
     async function submitPayment() {
       const transactionId = document.querySelector('#transaction-id').value.trim();

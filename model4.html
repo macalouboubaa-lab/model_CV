@@ -46,7 +46,7 @@ body {
 }
 .profile-photo {
   cursor: pointer; transition: all 0.2s; border-radius: 50%;
-  object-fit: cover; background: #eee;
+  width: 96px; height: 96px; object-fit: cover; background: #eee;
 }
 .profile-photo:hover { opacity: 0.85; transform: scale(1.02); }
 [contenteditable="true"] {
@@ -126,7 +126,7 @@ body {
     .preview body { padding-top: 0; }
     .saving { color: #fbbf24 !important; }.saved { color: #4ade80 !important; }.error { color: #ef4444 !important; }
     @media (max-width: 800px) { .cv-container { width: 100%; min-height: 0; margin: 15px auto; padding: 18px; box-shadow: none; } .toolbar { gap: 6px; padding: 8px; } .toolbar button { padding: 6px 9px; font-size: 11px; } .toolbar .save-status { display: none; } }
-    @media (max-width: 480px) { body { padding-top: 112px; } .header { gap: 13px; } .profile-photo { width: 82px; height: 82px; } .header-info h1 { font-size: 22px; } }
+    @media (max-width: 480px) { body { padding-top: 112px; } .header { gap: 13px; } .header-info h1 { font-size: 22px; } }
     @media print { body { padding: 0; background: white; } .toolbar, .btn-delete, .btn-add, .no-print { display: none !important; } .cv-container { width: 100%; min-height: auto; margin: 0; padding: 15mm; box-shadow: none; } [contenteditable="true"]:hover, [contenteditable="true"]:focus { background: transparent !important; outline: none !important; } .experience-item, .education-item, .section { break-inside: avoid; } * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } @page { size: A4; margin: 0; } }
   
 body{background:#efeee9;color:#21221f;font-family:Georgia,'Times New Roman',serif}.cv-container{padding:22mm 23mm;border-top:1px solid #21221f;box-shadow:none}.header{align-items:center;gap:24px;padding-bottom:22px}.header-info h1{font-size:38px;line-height:1}.job-title{font-family:Georgia,serif;font-size:14px}.section{display:grid;grid-template-columns:35mm 1fr;gap:16px;margin-bottom:22px}.section-title{border:0;color:#a34735;font:11px 'Courier New',monospace;letter-spacing:0}.section-content{font:14px/1.55 Georgia,serif}.experience-item,.education-item{font-family:Arial,sans-serif}.btn-add{font-family:Arial,sans-serif}@media(max-width:800px){.cv-container{padding:18px}.section{grid-template-columns:1fr;gap:6px}.header-info h1{font-size:30px}}

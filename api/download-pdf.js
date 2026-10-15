@@ -4,6 +4,7 @@ const chromium = require('@sparticuz/chromium').default;
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer-core');
 const sanitizeHtml = require('sanitize-html');
+const { prepareModelHtml } = require('../lib/model-template');
 const {
   adminRequest,
   getAuthenticatedUser,
@@ -98,7 +99,7 @@ module.exports = async function handler(request, response) {
       fs.readFile(templatePath, 'utf8'),
       fs.readFile(placeholderPath)
     ]);
-    const $ = cheerio.load(template);
+    const $ = cheerio.load(prepareModelHtml(template));
     $('script, iframe, object, embed').remove();
     const cvContainer = $('#cvContainer');
     if (!cvContainer.length) {
@@ -131,6 +132,9 @@ module.exports = async function handler(request, response) {
     response.setHeader('X-Content-Type-Options', 'nosniff');
     response.end(pdf);
   } catch (error) {
+    if (error.code === 'ENOENT') {
+      return sendJson(response, 404, { error: 'Ce modèle est introuvable.' });
+    }
     const statusCode = error.statusCode || 500;
     if (statusCode >= 500) console.error('PDF generation failed:', error.message);
     return sendJson(response, statusCode, {

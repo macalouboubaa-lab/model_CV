@@ -29,7 +29,7 @@ model_CV/
 ├── signup.html
 ├── payment.html
 ├── admin.html
-├── model1.html à model14.html
+├── modelN.html (modèles numérotés, actuellement model1 à model14)
 ├── assets/
 │   ├── logo-sama-cv.svg
 │   ├── shared.css
@@ -46,7 +46,8 @@ model_CV/
 │       └── payments.js
 ├── supabase/
 │   └── migrations/
-│       └── 001_manual_wave_payments.sql
+│       ├── 001_manual_wave_payments.sql
+│       └── 002_dynamic_model_ids.sql
 ├── vercel.json
 └── package.json
 ```

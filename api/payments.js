@@ -1,3 +1,5 @@
+const fs = require('fs/promises');
+const path = require('path');
 const {
   adminRequest,
   getAuthenticatedUser,
@@ -23,6 +25,12 @@ module.exports = async function handler(request, response) {
     const transactionId = typeof body.transactionId === 'string' ? body.transactionId.trim() : '';
     if (!isModelId(modelId) || transactionId.length < 6 || transactionId.length > 128) {
       return sendJson(response, 400, { error: 'Modèle ou identifiant de transaction invalide.' });
+    }
+    try {
+      await fs.access(path.join(process.cwd(), `${modelId}.html`));
+    } catch (error) {
+      if (error.code === 'ENOENT') return sendJson(response, 404, { error: 'Ce modèle est introuvable.' });
+      throw error;
     }
 
     const existingEntitlement = await adminRequest(

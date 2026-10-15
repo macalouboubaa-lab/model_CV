@@ -1,5 +1,6 @@
 const fs = require('fs/promises');
 const path = require('path');
+const { prepareModelHtml } = require('../lib/model-template');
 const {
   adminRequest,
   getAuthenticatedUser,
@@ -36,8 +37,11 @@ module.exports = async function handler(request, response) {
     response.setHeader('Content-Type', 'text/html; charset=utf-8');
     response.setHeader('Cache-Control', 'private, no-store');
     response.setHeader('X-Content-Type-Options', 'nosniff');
-    response.end(html);
+    response.end(prepareModelHtml(html));
   } catch (error) {
+    if (error.code === 'ENOENT') {
+      return sendJson(response, 404, { error: 'Ce modèle est introuvable.' });
+    }
     const statusCode = error.statusCode || 500;
     if (statusCode >= 500) console.error('Protected model delivery failed:', error.message);
     return sendJson(response, statusCode, {

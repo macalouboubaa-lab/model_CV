@@ -46,7 +46,7 @@ body {
 }
 .profile-photo {
   cursor: pointer; transition: all 0.2s; border-radius: 50%;
-  object-fit: cover; background: #eee;
+  width: 96px; height: 96px; object-fit: cover; background: #eee;
 }
 .profile-photo:hover { opacity: 0.85; transform: scale(1.02); }
 [contenteditable="true"] {
@@ -126,7 +126,7 @@ body {
     .preview body { padding-top: 0; }
     .saving { color: #fbbf24 !important; }.saved { color: #4ade80 !important; }.error { color: #ef4444 !important; }
     @media (max-width: 800px) { .cv-container { width: 100%; min-height: 0; margin: 15px auto; padding: 18px; box-shadow: none; } .toolbar { gap: 6px; padding: 8px; } .toolbar button { padding: 6px 9px; font-size: 11px; } .toolbar .save-status { display: none; } }
-    @media (max-width: 480px) { body { padding-top: 112px; } .header { gap: 13px; } .profile-photo { width: 82px; height: 82px; } .header-info h1 { font-size: 22px; } }
+    @media (max-width: 480px) { body { padding-top: 112px; } .header { gap: 13px; } .header-info h1 { font-size: 22px; } }
     @media print { body { padding: 0; background: white; } .toolbar, .btn-delete, .btn-add, .no-print { display: none !important; } .cv-container { width: 100%; min-height: auto; margin: 0; padding: 15mm; box-shadow: none; } [contenteditable="true"]:hover, [contenteditable="true"]:focus { background: transparent !important; outline: none !important; } .experience-item, .education-item, .section { break-inside: avoid; } * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } @page { size: A4; margin: 0; } }
   
 body{background:#e9e7df;color:#252722}.cv-container{position:relative;overflow:hidden;border-top:14px solid #d24f39}.cv-container:before{position:absolute;top:0;right:0;width:42%;height:150px;background:#f6e9c4;content:"";z-index:0}.cv-container>*{position:relative;z-index:1}.header{align-items:center;min-height:130px;padding:10px 12px 18px;border-color:#252722}.header-info h1{font:900 36px/.95 Arial,sans-serif}.job-title{color:#316b79;font-weight:bold;text-transform:uppercase}.profile-photo{border-color:#d24f39}.section-title{display:flex;align-items:center;gap:8px;border:0;color:#252722}.section-title:before{width:10px;height:10px;background:#d24f39;transform:rotate(45deg);content:""}.profile-section .section-content{max-width:90%;padding:10px 13px;background:#f8f0dc;font:14px/1.5 Georgia,serif}.experience-item,.education-item{border-left:3px solid #ebc94f;padding-left:12px}.skills-list{gap:9px}.skill-item{background:#eef3f1}@media(max-width:800px){.cv-container{padding:16px}.cv-container:before{height:110px}.header-info h1{font-size:28px}}

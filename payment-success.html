@@ -44,7 +44,7 @@
       const downloadButton = document.querySelector('#download-pdf');
       const editModelLink = document.querySelector('#edit-model');
       const requestedModel = new URLSearchParams(window.location.search).get('model') || 'model1';
-      const modelId = /^model(?:[1-9]|1[0-4])$/.test(requestedModel) ? requestedModel : 'model1';
+      const modelId = /^model[1-9]\d{0,3}$/.test(requestedModel) ? requestedModel : 'model1';
       editModelLink.href = `/${modelId}.html`;
       const session = await window.getVerifiedSession();
       if (!session) {

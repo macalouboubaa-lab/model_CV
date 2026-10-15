@@ -4,7 +4,7 @@ Une galerie de quatorze modèles de CV en HTML, CSS et JavaScript natifs. Les mo
 
 ## Utilisation
 
-- Ouvrez `index.html` ou directement l'un des fichiers `model1.html` à `model14.html`.
+- Ouvrez `index.html` ou directement un fichier `modelN.html` déployé.
 - Cliquez sur les textes pour les remplacer. Cliquez sur le portrait pour choisir une image.
 - Ajoutez ou supprimez des expériences, formations et compétences avec les boutons dans les sections ; les boutons de suppression apparaissent au survol des blocs.
 - « Sauvegarder » écrit dans le stockage local du navigateur ; la sauvegarde automatique s'active aussi après une modification. « Charger » restaure la dernière version enregistrée.
@@ -13,7 +13,7 @@ Une galerie de quatorze modèles de CV en HTML, CSS et JavaScript natifs. Les mo
 - « Réinitialiser » demande confirmation, efface la sauvegarde du modèle et recharge son contenu d'origine.
 - Le lien Wave de la galerie ouvre un paiement externe fixe de 2 000 FCFA au marchand « Scent & Style Store ». Ce paiement n’est pas relié à un compte ni à un droit de téléchargement dans cette version.
 
-Chaque modèle intègre son CSS et son JavaScript. En déploiement Vercel, les URLs `model1.html` à `model14.html` sont protégées par une vérification serveur ; les fichiers peuvent être ouverts directement dans un navigateur en développement local. Le portrait initial est chargé depuis `assets/placeholder-photo.jpg` ; conservez ce fichier à côté des modèles ou remplacez la photo dans l'éditeur. La galerie utilise aussi ses propres ressources dans `assets/`.
+Chaque modèle intègre son CSS et son JavaScript. Les photos portant la classe `.profile-photo` sont affichées au format carré 96 × 96 px. En déploiement Vercel, toutes les URLs correspondant à `modelN.html` (N de 1 à 9999) sont protégées par une vérification serveur. Ajouter un fichier `model15.html`, `model16.html`, etc. à la racine et le déployer l’ajoute au catalogue, aux liens d’administration, à la protection et à la génération PDF sans ajouter de route par modèle. Les nouveaux modèles doivent fournir un élément `#cvContainer` et un balisage d’édition compatible ; le serveur ajoute les scripts partagés et le style du portrait s’ils manquent, tandis que le script de protection crée une barre d’outils d’export PDF si aucune n’existe. Les droits des nouveaux modèles requièrent également l’application de la migration `002_dynamic_model_ids.sql` sur les bases ayant déjà reçu la migration 001. Les fichiers peuvent être ouverts directement dans un navigateur en développement local. Le portrait initial est chargé depuis `assets/placeholder-photo.jpg` ; conservez ce fichier à côté des modèles ou remplacez la photo dans l'éditeur. La galerie utilise aussi ses propres ressources dans `assets/`.
 
 Les données et les photos restent dans le navigateur courant, sur l'appareil courant. La sauvegarde signale les erreurs de quota ; réduisez la taille de la photo si le stockage local est plein. Pensez à télécharger le PDF ou à conserver une copie du HTML modifié avant de changer de navigateur ou d'effacer ses données.
 

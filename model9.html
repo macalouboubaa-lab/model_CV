@@ -46,7 +46,7 @@ body {
 }
 .profile-photo {
   cursor: pointer; transition: all 0.2s; border-radius: 50%;
-  object-fit: cover; background: #eee;
+  width: 96px; height: 96px; object-fit: cover; background: #eee;
 }
 .profile-photo:hover { opacity: 0.85; transform: scale(1.02); }
 [contenteditable="true"] {
@@ -126,7 +126,7 @@ body {
     .preview body { padding-top: 0; }
     .saving { color: #fbbf24 !important; }.saved { color: #4ade80 !important; }.error { color: #ef4444 !important; }
     @media (max-width: 800px) { .cv-container { width: 100%; min-height: 0; margin: 15px auto; padding: 18px; box-shadow: none; } .toolbar { gap: 6px; padding: 8px; } .toolbar button { padding: 6px 9px; font-size: 11px; } .toolbar .save-status { display: none; } }
-    @media (max-width: 480px) { body { padding-top: 112px; } .header { gap: 13px; } .profile-photo { width: 82px; height: 82px; } .header-info h1 { font-size: 22px; } }
+    @media (max-width: 480px) { body { padding-top: 112px; } .header { gap: 13px; } .header-info h1 { font-size: 22px; } }
     @media print { body { padding: 0; background: white; } .toolbar, .btn-delete, .btn-add, .no-print { display: none !important; } .cv-container { width: 100%; min-height: auto; margin: 0; padding: 15mm; box-shadow: none; } [contenteditable="true"]:hover, [contenteditable="true"]:focus { background: transparent !important; outline: none !important; } .experience-item, .education-item, .section { break-inside: avoid; } * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } @page { size: A4; margin: 0; } }
   
 body{background:#e9ece8;color:#24312e}.cv-container{border-top:7px solid #347363}.header{padding-bottom:15px;border-color:#24312e}.header-info h1{font-size:28px}.job-title{color:#347363;font-weight:bold}.profile-photo{border:3px solid #e7c867}.section-title{display:flex;align-items:center;gap:8px;color:#347363;letter-spacing:.7px}.section-title:before{width:9px;height:9px;border-radius:50%;background:#c4563f;content:""}.profile-section .section-content{padding:10px 12px;border-left:4px solid #e7c867;background:#fbf7e9}.experience-item,.education-item{border-left:2px solid #d9e5dd;padding-left:11px}.skill-item{background:#eff4f0}.btn-add{color:#347363;border-color:#34736388;background:#34736310}@media(max-width:800px){.cv-container{padding:18px}}

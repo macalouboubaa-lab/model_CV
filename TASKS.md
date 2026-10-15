@@ -1,6 +1,6 @@
 # TASKS — SAMA CV
 
-État mis à jour : 2026-10-14.
+État mis à jour : 2026-10-15.
 
 ## Terminé
 
@@ -23,6 +23,8 @@
 - [x] Corriger l’indicateur de sauvegarde automatique et afficher les erreurs de quota `localStorage` dans les quatorze modèles.
 - [x] Paginer la liste des demandes Wave côté API et interface d’administration.
 - [x] Documenter les informations de configuration Supabase communiquées et les distinguer des éléments vérifiés dans le dépôt.
+- [x] Uniformiser l’affichage des portraits à 96 × 96 px dans les quatorze modèles existants.
+- [x] Ajouter la découverte automatique des modèles `modelN.html`, le routage protégé, la génération PDF, le catalogue galerie/admin et la validation des identifiants jusqu’à model9999.
 
 ## À faire
 
@@ -32,7 +34,7 @@
 - [ ] Valider les réécritures Vercel et le bundling Chromium dans un déploiement Preview.
 - [ ] Obtenir et confirmer la documentation/API Wave Business, les méthodes de signature webhook, le pays, la devise et le sandbox.
 - [ ] Configurer le projet Supabase, le mode de confirmation email et la procédure de provisionnement admin sans mot de passe codé en dur.
-- [ ] Appliquer et tester `supabase/migrations/001_manual_wave_payments.sql` sur le projet Supabase.
+- [ ] Appliquer et tester les migrations `001_manual_wave_payments.sql` et `002_dynamic_model_ids.sql` sur le projet Supabase.
 - [ ] Configurer `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY` (ou la clé publishable) dans Vercel Preview/Production ; le lien Wave SAMA CV confirmé est intégré par défaut et peut être remplacé via `NEXT_PUBLIC_WAVE_PAYMENT_LINK`.
 - [ ] Ajouter `SUPABASE_SERVICE_ROLE_KEY` (ou `SUPABASE_SECRET_KEY` / `SUPABASE_SERVICE_KEY`) aux variables serveur Vercel ; la clé n’a pas été fournie et ne doit pas être publiée.
 - [ ] Implémenter les endpoints d’overview admin et de bannissement, avec vérifications serveur/RLS.
@@ -51,5 +53,5 @@
 - La clé serveur Supabase n’a pas été ajoutée par choix de l’utilisateur ; les endpoints d’administration et de paiement resteront indisponibles jusqu’à sa configuration.
 - Les CV restent dans le stockage local du navigateur ; le PDF est généré à la demande à partir du contenu transmis et nettoyé côté serveur.
 - Procédure sécurisée de création du premier compte administrateur.
-- La migration `001_manual_wave_payments.sql` et le schéma signalé de `public.users` n’ont pas été vérifiés dans le projet Supabase distant.
+- Les migrations `001_manual_wave_payments.sql`, `002_dynamic_model_ids.sql` et le schéma signalé de `public.users` n’ont pas été vérifiés dans le projet Supabase distant.
 - Le brief du favicon mentionne un éclair mauve ; le SVG présent dans ce checkout montre un document bordé de mauve avec un coin plié et une étoile jaune. Confirmer si l’icône doit être ajustée.

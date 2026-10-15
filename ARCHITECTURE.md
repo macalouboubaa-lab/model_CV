@@ -2,7 +2,7 @@
 
 ## Vue d’ensemble
 
-SAMA CV est actuellement une galerie statique de quatorze modèles HTML éditables. La cible commerciale ajoute des comptes, des droits d’accès, le paiement Wave et un déploiement Vercel/Supabase.
+SAMA CV est une galerie HTML éditable qui contient quatorze modèles intégrés et peut découvrir d’autres modèles ajoutés à la racine du dépôt. La cible commerciale ajoute des comptes, des droits d’accès, le paiement Wave et un déploiement Vercel/Supabase.
 
 Le navigateur sert à éditer et prévisualiser les CV. Il n’est pas une frontière de sécurité : un modèle livré comme fichier statique peut être récupéré directement. Les contrôles d’accès et l’octroi des achats doivent donc être décidés et appliqués par le backend.
 
@@ -39,10 +39,11 @@ L’ID saisi par le client n’est jamais une preuve. Le navigateur ne peut ni c
 - `api/admin/payments.js` : vérifie l’identité et le rôle admin auprès de Supabase, puis permet la validation ou le refus manuel.
 - `api/entitlements.js` : vérifie les droits côté serveur.
 - `api/download-pdf.js` : vérifie la session et le droit, nettoie le contenu du CV édité et génère le PDF avec Chromium à partir du modèle HTML de confiance.
-- `api/protected-model.js` et `vercel.json` : réécrivent les URLs des modèles vers une fonction qui vérifie session et droit avant de servir le HTML.
+- `api/models.js` : découvre les fichiers `modelN.html` de la racine et expose le catalogue utilisé par la galerie et l’administration.
+- `api/protected-model.js` et `vercel.json` : réécrivent toutes les URLs `modelN.html` (N de 1 à 9999) vers une fonction qui vérifie session et droit avant de servir le HTML. Les scripts partagés sont ajoutés aux nouveaux modèles s’ils ne sont pas inclus.
 - `api/session.js` : synchronise la session Supabase vers un cookie `HttpOnly`, `Secure`, `SameSite=Lax` afin que les navigations HTML transmettent l’identité au serveur.
 - `admin.html` : interface de revue manuelle ; l’autorisation est aussi vérifiée côté API.
-- `supabase/migrations/001_manual_wave_payments.sql` : paiements en attente, droits par modèle, RLS et fonction transactionnelle de validation.
+- `supabase/migrations/001_manual_wave_payments.sql` et `002_dynamic_model_ids.sql` : paiements en attente, droits par modèle, RLS, fonction transactionnelle de validation et validation des numéros de modèles extensibles.
 
 ## Données et autorisations
 
@@ -56,7 +57,7 @@ Les notes du propriétaire du 8 octobre 2026 indiquent qu’un projet Supabase n
 
 Les mêmes notes signalent une table `public.users` comportant `id`, `email`, `password_hash`, `created_at`, `last_login`, `is_admin` et `is_banned`. Cette table n’est pas définie par la migration suivie dans ce dépôt et l’application s’authentifie auprès de Supabase Auth (`auth.users`). Supabase Auth doit rester la source de vérité pour les identités et mots de passe : ne pas recopier les mots de passe ou leurs hachages dans `public.users`, ni utiliser ses colonnes de rôle comme autorité sans migration et contrôles serveur explicites. La correspondance et l’usage éventuel de cette table doivent être vérifiés dans le tableau de bord avant toute intégration.
 
-La migration `supabase/migrations/001_manual_wave_payments.sql` crée les tables `payments` et `entitlements` liées à `auth.users`. Elle ne crée pas `public.users` et l’activation de `pgcrypto` n’est pas une preuve que cette migration applicative a été exécutée.
+La migration `supabase/migrations/001_manual_wave_payments.sql` crée les tables `payments` et `entitlements` liées à `auth.users`. La migration `002_dynamic_model_ids.sql` élargit les contraintes afin d’accepter les modèles numérotés de 1 à 9999 ; exécuter les migrations dans l’ordre. Elles ne créent pas `public.users` et l’activation de `pgcrypto` n’est pas une preuve que ces migrations applicatives ont été exécutées.
 
 ## Paiement Wave manuel
 
@@ -66,7 +67,7 @@ Le compte Wave et le lien seul ne permettent pas d’implémenter un checkout ou
 
 ## Distribution des modèles et PDF
 
-Les requêtes vers `model1.html` à `model14.html` sont réécrites vers `api/protected-model.js`. L’API vérifie l’identité Supabase et l’entitlement avant de lire le modèle et de retourner l’HTML. Le navigateur transmet la session via un cookie HTTP-only ; le contrôle visuel de `protection.js` ne constitue pas une frontière de sécurité.
+Les requêtes vers `modelN.html` (N de 1 à 9999) sont réécrites vers `api/protected-model.js`. L’API vérifie l’identité Supabase et l’entitlement avant de lire le modèle et de retourner l’HTML. Les fichiers de modèles sont inclus dans le bundling Vercel par motif ; l’ajout d’un nouveau fichier n’exige pas de nouvelle route. `lib/model-template.js` ajoute les scripts partagés et la règle de dimensions de portrait pour les nouveaux modèles ; `protection.js` ajoute une barre d’outils avec accès PDF si le modèle a `#cvContainer` mais pas de barre dédiée. Le navigateur transmet la session via un cookie HTTP-only ; le contrôle visuel de `protection.js` ne constitue pas une frontière de sécurité. Les modèles doivent contenir `#cvContainer` et un balisage d’édition compatible pour offrir les fonctions d’édition et de PDF.
 
 `api/download-pdf.js` reçoit le HTML du conteneur édité, le nettoie et l’insère dans le modèle source de confiance avant son rendu par Chromium. L’API vérifie le droit côté serveur puis retourne le PDF avec `Cache-Control: private, no-store`. Les données du CV restent dans le navigateur ; la génération nécessite donc que le client transmette un CV édité valide.
 

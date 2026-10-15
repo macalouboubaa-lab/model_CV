@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
+<head> 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0F19">
@@ -87,10 +87,15 @@
       return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString('fr-FR');
     }
 
-    function showModels() {
+    async function showModels() {
       const modelList = document.querySelector('#model-list');
-      for (let modelNumber = 1; modelNumber <= 14; modelNumber += 1) {
-        const modelId = `model${modelNumber}`;
+      const response = await fetch('/api/models', { headers: { Accept: 'application/json' } });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !Array.isArray(result.models)) {
+        throw new Error(result.error || 'Impossible de charger le catalogue des modèles.');
+      }
+      for (const modelId of result.models.filter((model) => /^model[1-9]\d{0,3}$/.test(model))) {
+        const modelNumber = modelId.slice(5);
         const link = document.createElement('a');
         link.className = 'model-link';
         link.href = `/${modelId}.html`;
@@ -182,11 +187,10 @@
     });
     document.querySelector('#logout-button').addEventListener('click', () => window.logout());
     document.addEventListener('DOMContentLoaded', async () => {
-      showModels();
       const session = await window.requireAdmin();
       if (!session) return;
       try {
-        await loadManualPayments(session);
+        await Promise.all([loadManualPayments(session), showModels()]);
         statusMessage.textContent = '';
       } catch (error) {
         statusMessage.textContent = error.message;

@@ -18,10 +18,24 @@ module.exports = async function handler(request, response) {
     if (!isAdmin(auth.user)) return sendJson(response, 403, { error: 'Accès administrateur requis.' });
 
     if (request.method === 'GET') {
-      const payments = await adminRequest(
-        '/rest/v1/payments?select=id,user_email,model_id,transaction_id,amount_xof,status,created_at,reviewed_at&order=created_at.desc&limit=200'
+      const pageValue = request.query?.page;
+      const limitValue = request.query?.limit;
+      const page = pageValue === undefined ? 1 : Number(pageValue);
+      const limit = limitValue === undefined ? 50 : Number(limitValue);
+      if (!Number.isSafeInteger(page) || page < 1 ||
+        !Number.isSafeInteger(limit) || limit < 1 || limit > 100 ||
+        !Number.isSafeInteger((page - 1) * limit)) {
+        return sendJson(response, 400, { error: 'Les paramètres page et limit sont invalides (limit maximal : 100).' });
+      }
+
+      const offset = (page - 1) * limit;
+      const rows = await adminRequest(
+        `/rest/v1/payments?select=id,user_email,model_id,transaction_id,amount_xof,status,created_at,reviewed_at&order=created_at.desc&limit=${limit + 1}&offset=${offset}`
       );
-      return sendJson(response, 200, { payments });
+      return sendJson(response, 200, {
+        payments: rows.slice(0, limit),
+        pagination: { page, limit, hasMore: rows.length > limit }
+      });
     }
 
     const body = await parseBody(request);

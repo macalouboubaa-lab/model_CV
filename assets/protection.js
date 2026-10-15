@@ -1,4 +1,4 @@
-(function () {
+ (function () {
   const MODEL_ID_PATTERN = /^model(?:[1-9]|1[0-4])$/;
 
   function detectModelId() {
@@ -108,7 +108,7 @@
 
       const isPaid = Boolean(session?.email && await window.hasPaid?.(session.email, modelId));
       const watermarkMessage = isPaid ? 'Paiement validé' : 'Aperçu — Non payé';
-      const watermarkCta = isPaid ? 'PDF privé bientôt disponible' : 'Payez 2.000 FCFA';
+      const watermarkCta = isPaid ? 'Téléchargez votre CV en PDF' : 'Payez 2.000 FCFA';
 
       const watermark = document.createElement('div');
       watermark.id = 'sama-watermark';
@@ -125,7 +125,7 @@
       const banner = document.createElement('div');
       banner.id = 'sama-banner';
       banner.innerHTML = isPaid
-        ? '<span>Paiement validé</span><span class="separator">•</span><span>Le téléchargement PDF privé n’est pas encore disponible.</span>'
+        ? '<span>Paiement validé</span><span class="separator">•</span><span>Téléchargez votre CV en PDF depuis la barre d’outils.</span>'
         : '<span>Document en aperçu</span><span class="separator">•</span><span>Le paiement sera vérifié par un administrateur.</span><button type="button">Payer 2.000 FCFA</button>';
       const bannerPaymentButton = banner.querySelector('button');
       bannerPaymentButton?.addEventListener('click', () => {
@@ -141,11 +141,24 @@
           ? exportButton.className
           : `${exportButton.className} sama-pay-button`;
         replacementButton.textContent = isPaid
-          ? 'PDF privé bientôt disponible'
+          ? 'Télécharger mon CV en PDF'
           : 'Payer 2.000 FCFA pour télécharger';
         if (isPaid) {
-          replacementButton.disabled = true;
-          replacementButton.title = 'Le téléchargement privé du PDF n’est pas encore configuré.';
+          replacementButton.addEventListener('click', async () => {
+            const container = document.querySelector('#cvContainer');
+            if (!container) {
+              showWarning('Le contenu du CV est introuvable.');
+              return;
+            }
+            replacementButton.disabled = true;
+            try {
+              await window.downloadPdf(modelId, container.innerHTML);
+            } catch (error) {
+              showWarning(error.message);
+            } finally {
+              replacementButton.disabled = false;
+            }
+          });
         } else {
           replacementButton.addEventListener('click', () => {
             window.location.assign(`/payment.html?model=${encodeURIComponent(modelId)}`);

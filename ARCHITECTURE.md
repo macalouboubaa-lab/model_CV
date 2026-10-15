@@ -24,7 +24,7 @@ flowchart TD
   K --> L{Valide ?}
   L -- Oui --> M[API enregistre l’approbation et le droit]
   L -- Non --> N[Demande refusée]
-  M --> O[Livraison privée PDF à implémenter]
+  M --> O[Génération du PDF après vérification du droit]
 ```
 
 L’ID saisi par le client n’est jamais une preuve. Le navigateur ne peut ni confirmer une transaction ni accorder un droit : un administrateur authentifié vérifie le paiement dans Wave avant de l’approuver côté serveur. L’automatisation par webhook reste suspendue jusqu’à réception de la documentation officielle Wave.
@@ -38,6 +38,9 @@ L’ID saisi par le client n’est jamais une preuve. Le navigateur ne peut ni c
 - `payment.html` et `api/payments.js` : paiement par lien Wave configuré puis création d’une demande `pending`, sans autorité client sur l’achat.
 - `api/admin/payments.js` : vérifie l’identité et le rôle admin auprès de Supabase, puis permet la validation ou le refus manuel.
 - `api/entitlements.js` : vérifie les droits côté serveur.
+- `api/download-pdf.js` : vérifie la session et le droit, nettoie le contenu du CV édité et génère le PDF avec Chromium à partir du modèle HTML de confiance.
+- `api/protected-model.js` et `vercel.json` : réécrivent les URLs des modèles vers une fonction qui vérifie session et droit avant de servir le HTML.
+- `api/session.js` : synchronise la session Supabase vers un cookie `HttpOnly`, `Secure`, `SameSite=Lax` afin que les navigations HTML transmettent l’identité au serveur.
 - `admin.html` : interface de revue manuelle ; l’autorisation est aussi vérifiée côté API.
 - `supabase/migrations/001_manual_wave_payments.sql` : paiements en attente, droits par modèle, RLS et fonction transactionnelle de validation.
 
@@ -63,11 +66,11 @@ Le compte Wave et le lien seul ne permettent pas d’implémenter un checkout ou
 
 ## Distribution des modèles et PDF
 
-Les fichiers `model1.html` à `model14.html` sont actuellement des fichiers statiques. Les protéger par un contrôle d’interface ou par `protection.js` est impossible : une URL publique permet de les récupérer sans passer par l’interface.
+Les requêtes vers `model1.html` à `model14.html` sont réécrites vers `api/protected-model.js`. L’API vérifie l’identité Supabase et l’entitlement avant de lire le modèle et de retourner l’HTML. Le navigateur transmet la session via un cookie HTTP-only ; le contrôle visuel de `protection.js` ne constitue pas une frontière de sécurité.
 
-Décision retenue : générer le PDF côté serveur, le conserver dans un stockage privé et ne le remettre qu’au moyen d’un lien signé temporaire. Le serveur devra vérifier le droit d’accès au modèle avant de générer ou délivrer le PDF. Les HTML statiques ne seront pas considérés comme des fichiers privés ou comme une livraison après achat.
+`api/download-pdf.js` reçoit le HTML du conteneur édité, le nettoie et l’insère dans le modèle source de confiance avant son rendu par Chromium. L’API vérifie le droit côté serveur puis retourne le PDF avec `Cache-Control: private, no-store`. Les données du CV restent dans le navigateur ; la génération nécessite donc que le client transmette un CV édité valide.
 
-Le fournisseur de stockage, la durée de validité du lien et le format des données transmises au générateur restent à définir pendant l’implémentation. L’impression `window.print()` côté client peut rester une fonction de prévisualisation, mais ne prouve pas un achat et ne peut pas empêcher la copie d’un document rendu à l’écran.
+Le PDF est produit à la demande et n’est pas conservé dans un stockage privé. L’impression `window.print()` côté client reste disponible aux administrateurs et ne constitue pas une livraison après achat.
 
 ## Variables d’environnement attendues
 
@@ -80,7 +83,7 @@ Les noms définitifs dépendront des SDK/API retenus. Les secrets doivent être 
 - Secret de signature webhook si Wave en fournit un.
 - URL publique de l’application et URL webhook configurée chez Wave.
 
-Les notes du propriétaire indiquent que `package.json` et `vercel.json` ont été créés le 8 octobre 2026, et que des configurations Next.js/Tailwind/PostCSS/TypeScript héritées sont inutilisées pour le site statique. Ces fichiers de configuration ne sont pas présents dans le checkout examiné ; leur emplacement et leur état doivent être confirmés avant de s’appuyer sur ces notes pour déployer. Aucun nom de projet ou URL Supabase réelle ne doit être déduit des exemples.
+Le dépôt contient `package.json` pour le rendu PDF côté serveur et `vercel.json` pour les fonctions et les réécritures de modèles. Aucun nom de projet ou URL Supabase réelle ne doit être déduit des exemples.
 
 ## Déploiement
 

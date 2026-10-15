@@ -1,0 +1,27 @@
+{
+  "rewrites": [
+    { "source": "/model1.html", "destination": "/api/protected-model?model=model1" },
+    { "source": "/model2.html", "destination": "/api/protected-model?model=model2" },
+    { "source": "/model3.html", "destination": "/api/protected-model?model=model3" },
+    { "source": "/model4.html", "destination": "/api/protected-model?model=model4" },
+    { "source": "/model5.html", "destination": "/api/protected-model?model=model5" },
+    { "source": "/model6.html", "destination": "/api/protected-model?model=model6" },
+    { "source": "/model7.html", "destination": "/api/protected-model?model=model7" },
+    { "source": "/model8.html", "destination": "/api/protected-model?model=model8" },
+    { "source": "/model9.html", "destination": "/api/protected-model?model=model9" },
+    { "source": "/model10.html", "destination": "/api/protected-model?model=model10" },
+    { "source": "/model11.html", "destination": "/api/protected-model?model=model11" },
+    { "source": "/model12.html", "destination": "/api/protected-model?model=model12" },
+    { "source": "/model13.html", "destination": "/api/protected-model?model=model13" },
+    { "source": "/model14.html", "destination": "/api/protected-model?model=model14" }
+  ],
+  "functions": {
+    "api/download-pdf.js": {
+      "maxDuration": 60,
+      "includeFiles": ["model*.html", "assets/placeholder-photo.jpg"]
+    },
+    "api/protected-model.js": {
+      "includeFiles": ["model*.html"]
+    }
+  }
+}

@@ -28,6 +28,9 @@
     tr:last-child td { border-bottom:0; }
     .table-action { padding:6px 9px; border:1px solid #8e3441; border-radius:4px; background:#331c25; color:#ff9ba3; cursor:pointer; }
     .table-action.approve { margin-right:6px; border-color:#26864c; background:#173324; color:#9df0b7; }
+    .pagination { display:flex; align-items:center; justify-content:center; gap:12px; margin-top:14px; }
+    .pagination button { padding:8px 12px; border:1px solid #464c5e; border-radius:4px; background:#171c29; color:white; cursor:pointer; }
+    .pagination button:disabled { opacity:.5; cursor:not-allowed; }
     .model-list { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
     .model-link { display:flex; justify-content:space-between; gap:8px; padding:11px; border:1px solid #343b4d; border-radius:4px; color:#e5e6ed; text-decoration:none; }
     .model-link:hover { border-color:#C342FF; }
@@ -47,8 +50,13 @@
     <p class="status" id="admin-status" role="status" aria-live="polite">Vérification de votre accès…</p>
     <section aria-labelledby="payments-title">
       <h2 id="payments-title">Validation manuelle des paiements Wave</h2>
-      <p>Vérifiez la transaction dans votre compte Wave Business avant de l’approuver. Une approbation enregistre le droit d’accès, mais ne livre pas encore de PDF privé.</p>
+      <p>Vérifiez la transaction dans votre compte Wave Business avant de l’approuver. Une approbation enregistre le droit d’accès au modèle et à la génération du PDF.</p>
       <div class="table-wrap"><table><thead><tr><th>Utilisateur</th><th>Modèle</th><th>Montant</th><th>ID de transaction</th><th>Date</th><th>Statut</th><th>Décision</th></tr></thead><tbody id="payments-body"></tbody></table></div>
+      <nav class="pagination" aria-label="Pagination des paiements">
+        <button id="previous-page" type="button" disabled>Précédent</button>
+        <span id="page-label" aria-live="polite">Page 1</span>
+        <button id="next-page" type="button" disabled>Suivant</button>
+      </nav>
     </section>
     <section aria-labelledby="models-title">
       <h2 id="models-title">Modèles</h2>
@@ -60,6 +68,11 @@
   <script>
     const statusMessage = document.querySelector('#admin-status');
     const paymentBody = document.querySelector('#payments-body');
+    const previousPageButton = document.querySelector('#previous-page');
+    const nextPageButton = document.querySelector('#next-page');
+    const pageLabel = document.querySelector('#page-label');
+    let currentPage = 1;
+    let currentHasMore = false;
 
     function addCell(row, value) {
       const cell = document.createElement('td');
@@ -86,14 +99,19 @@
       }
     }
 
-    async function loadManualPayments(session) {
+    async function loadManualPayments(session, page = currentPage) {
       const config = await window.getSamaConfig();
-      const response = await fetch(config.adminPaymentsEndpoint, {
+      const response = await fetch(`${config.adminPaymentsEndpoint}?page=${page}&limit=50`, {
         headers: { Authorization: `Bearer ${session.accessToken}` }
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || 'Impossible de charger les demandes Wave.');
       paymentBody.replaceChildren();
+      currentPage = data.pagination.page;
+      currentHasMore = data.pagination.hasMore;
+      pageLabel.textContent = `Page ${currentPage}`;
+      previousPageButton.disabled = currentPage <= 1;
+      nextPageButton.disabled = !currentHasMore;
 
       for (const payment of data.payments || []) {
         const row = document.createElement('tr');
@@ -144,6 +162,24 @@
       }
     }
 
+    previousPageButton.addEventListener('click', async () => {
+      if (currentPage <= 1) return;
+      try {
+        const session = await window.requireAdmin();
+        if (session) await loadManualPayments(session, currentPage - 1);
+      } catch (error) {
+        statusMessage.textContent = error.message;
+      }
+    });
+    nextPageButton.addEventListener('click', async () => {
+      if (!currentHasMore) return;
+      try {
+        const session = await window.requireAdmin();
+        if (session) await loadManualPayments(session, currentPage + 1);
+      } catch (error) {
+        statusMessage.textContent = error.message;
+      }
+    });
     document.querySelector('#logout-button').addEventListener('click', () => window.logout());
     document.addEventListener('DOMContentLoaded', async () => {
       showModels();

@@ -16,7 +16,9 @@
     h1 { margin:0 0 12px; color:#fff; font-size:27px; }
     p { color:#B8BCC8; font-size:14px; line-height:1.6; }
     .btn { display:inline-block; margin:10px 5px 0; padding:13px 22px; border:0; border-radius:6px; background:#C342FF; color:white; font-weight:700; text-decoration:none; cursor:pointer; }
+    .btn[hidden] { display:none; }
     .btn:hover { background:#A82EE0; }
+    .btn:disabled { opacity:.6; cursor:wait; }
     #status { min-height:24px; }
     .sama-footer { width:100%; margin:30px -24px -24px; }
   </style>
@@ -28,6 +30,8 @@
       <h1 id="success-title">Suivi de votre paiement</h1>
       <p id="status" role="status" aria-live="polite">Vérification du statut…</p>
       <button id="refresh-status" class="btn" type="button">Actualiser le statut</button>
+      <button id="download-pdf" class="btn" type="button" hidden>Télécharger mon CV en PDF</button>
+      <a id="edit-model" class="btn" href="#" hidden>Ouvrir mon modèle</a>
       <a class="btn" href="/index.html">Retour à la galerie</a>
     </section>
   </main>
@@ -37,8 +41,11 @@
     document.addEventListener('DOMContentLoaded', async () => {
       const status = document.querySelector('#status');
       const refreshButton = document.querySelector('#refresh-status');
+      const downloadButton = document.querySelector('#download-pdf');
+      const editModelLink = document.querySelector('#edit-model');
       const requestedModel = new URLSearchParams(window.location.search).get('model') || 'model1';
       const modelId = /^model(?:[1-9]|1[0-4])$/.test(requestedModel) ? requestedModel : 'model1';
+      editModelLink.href = `/${modelId}.html`;
       const session = await window.getVerifiedSession();
       if (!session) {
         window.location.assign(`/login.html?next=${encodeURIComponent(`/payment-success.html?model=${modelId}`)}`);
@@ -49,14 +56,35 @@
         status.textContent = 'Vérification du statut…';
         try {
           const paid = await window.getEntitlement(modelId);
+          downloadButton.hidden = !paid;
+          editModelLink.hidden = !paid;
           status.textContent = paid
-            ? 'Votre paiement a été validé par l’administration. La remise du PDF privé n’est pas encore disponible.'
+            ? 'Votre paiement est validé. Vous pouvez ouvrir le modèle pour créer votre CV, puis télécharger sa version PDF.'
             : 'Votre demande est en attente de validation manuelle. Aucun téléchargement n’est débloqué pour le moment.';
         } catch (error) {
           status.textContent = error.message;
         }
         refreshButton.disabled = false;
       };
+      downloadButton.addEventListener('click', async () => {
+        downloadButton.disabled = true;
+        try {
+          const saved = localStorage.getItem(`cv_${modelId}`);
+          if (!saved) {
+            throw new Error('Aucun CV sauvegardé. Ouvrez votre modèle, créez votre CV et réessayez.');
+          }
+          const cv = JSON.parse(saved);
+          if (typeof cv.html !== 'string' || !cv.html.trim()) {
+            throw new Error('La sauvegarde du CV est invalide. Ouvrez le modèle et sauvegardez votre CV à nouveau.');
+          }
+          await window.downloadPdf(modelId, cv.html);
+          status.textContent = 'Votre téléchargement PDF a démarré.';
+        } catch (error) {
+          status.textContent = error.message;
+        } finally {
+          downloadButton.disabled = false;
+        }
+      });
       refreshButton.addEventListener('click', refreshStatus);
       await refreshStatus();
     });

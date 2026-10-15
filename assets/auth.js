@@ -7,7 +7,8 @@
     supabaseAnonKey: '',
     entitlementsEndpoint: '/api/entitlements',
     paymentSubmissionEndpoint: '/api/payments',
-    adminPaymentsEndpoint: '/api/admin/payments'
+    adminPaymentsEndpoint: '/api/admin/payments',
+    pdfDownloadEndpoint: '/api/download-pdf'
   };
 
   async function getConfig() {
@@ -53,6 +54,15 @@
     };
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
     return session;
+  }
+
+  async function syncServerSession(accessToken) {
+    const response = await fetch('/api/session', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || 'La synchronisation de session a échoué.');
   }
 
   async function supabaseRequest(path, options = {}) {
@@ -104,6 +114,7 @@
       const user = await supabaseRequest('/auth/v1/user', {
         headers: { Authorization: `Bearer ${session.access_token}` }
       });
+      await syncServerSession(session.access_token);
       const email = (user.email || '').toLowerCase();
       return {
         email,
@@ -159,6 +170,11 @@
       } catch (error) {
         console.warn('La révocation de session Supabase a échoué.');
       }
+    }
+    try {
+      await fetch('/api/session', { method: 'DELETE' });
+    } catch (error) {
+      console.warn('La fermeture de session serveur a échoué.');
     }
     sessionStorage.removeItem(SESSION_KEY);
     window.location.assign('/login.html');
@@ -231,6 +247,31 @@
     }
   }
 
+  async function downloadPdf(modelId, html) {
+    const session = await getVerifiedSession();
+    if (!session) throw new Error('Connectez-vous pour télécharger ce PDF.');
+    const response = await fetch(window.SAMA_CV_CONFIG.pdfDownloadEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.accessToken}`
+      },
+      body: JSON.stringify({ modelId, html })
+    });
+    if (!response.ok) {
+      const result = await response.json().catch(() => ({}));
+      throw new Error(result.error || 'La génération du PDF a échoué.');
+    }
+
+    const pdf = await response.blob();
+    const downloadUrl = URL.createObjectURL(pdf);
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = `${modelId}.pdf`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+  }
+
   Object.assign(window, {
     getSamaConfig: getConfig,
     getSession,
@@ -242,6 +283,7 @@
     requireAdmin,
     getEntitlement,
     hasPaid,
-    submitPayment
+    submitPayment,
+    downloadPdf
   });
 })();

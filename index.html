@@ -102,5 +102,27 @@
     <p class="empty" id="empty" hidden>Aucun modèle ne correspond à cette recherche.</p>
   </main>
   <footer class="sama-footer"><p>Créé par <strong>Boubacar Cissé</strong><span class="separator">•</span><a href="tel:+221754477448">#75 447 74 48</a></p></footer>
+  <script src="/assets/auth.js"></script>
+  <script>
+    document.querySelectorAll('.template').forEach((link) => {
+      link.addEventListener('click', async (event) => {
+        event.preventDefault();
+        const modelId = link.getAttribute('href').replace('.html', '');
+        try {
+          const session = await window.getVerifiedSession();
+          if (!session) {
+            window.location.assign(`/login.html?next=${encodeURIComponent(`/payment.html?model=${modelId}`)}`);
+            return;
+          }
+          const hasAccess = await window.getEntitlement(modelId);
+          window.location.assign(hasAccess
+            ? `/${modelId}.html`
+            : `/payment.html?model=${encodeURIComponent(modelId)}`);
+        } catch (error) {
+          window.alert(error.message);
+        }
+      });
+    });
+  </script>
 </body>
 </html>

@@ -29,7 +29,7 @@
   </style>
 </head>
 <body>
-  <main>
+  <main hidden>
     <a href="/index.html" aria-label="Retour à SAMA CV"><img class="brand" src="/assets/logo-sama-cv.svg" alt="SAMA CV"></a>
     <section class="payment-panel" aria-labelledby="payment-title">
       <h1 id="payment-title">Payer 2 000 FCFA via Wave</h1>
@@ -82,6 +82,7 @@
         message.textContent = result.error || 'Le paiement n’a pas pu être vérifié.';
         return;
       }
+      sessionStorage.removeItem(`sama-download-intent:${modelId}`);
       window.location.assign(`/payment-success.html?model=${encodeURIComponent(modelId)}&status=pending`);
     }
 
@@ -91,10 +92,17 @@
     });
 
     document.addEventListener('DOMContentLoaded', async () => {
-      if (!await window.getVerifiedSession()) {
-        window.location.assign(`/login.html?next=${encodeURIComponent(`/payment.html?model=${modelId}`)}`);
+      const intentKey = `sama-download-intent:${modelId}`;
+      const requestedIntent = new URLSearchParams(window.location.search).get('intent');
+      if (requestedIntent !== 'download' || sessionStorage.getItem(intentKey) !== '1') {
+        window.location.replace('/index.html');
         return;
       }
+      if (!await window.getVerifiedSession()) {
+        window.location.assign(`/login.html?next=${encodeURIComponent(`/payment.html?model=${modelId}&intent=download`)}`);
+        return;
+      }
+      document.querySelector('main').hidden = false;
       try {
         const config = await window.getSamaConfig();
         const paymentLink = document.querySelector('#wave-payment-link');

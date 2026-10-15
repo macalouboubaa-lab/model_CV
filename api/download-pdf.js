@@ -101,6 +101,7 @@ module.exports = async function handler(request, response) {
     ]);
     const $ = cheerio.load(prepareModelHtml(template));
     $('script, iframe, object, embed').remove();
+    $('body').addClass('paid-user');
     const cvContainer = $('#cvContainer');
     if (!cvContainer.length) {
       const error = new Error('Le conteneur du modèle est introuvable.');

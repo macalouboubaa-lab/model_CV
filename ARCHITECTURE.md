@@ -10,21 +10,22 @@ Le navigateur sert à éditer et prévisualiser les CV. Il n’est pas une front
 
 ```mermaid
 flowchart TD
-  A[Galerie SAMA CV] --> B{Session Supabase ?}
-  B -- Non --> C[Inscription ou connexion]
-  C --> D[Session utilisateur]
-  B -- Oui --> D
-  D --> E[Choisir un modèle]
-  E --> F{Admin ?}
-  F -- Oui --> G[Accès admin autorisé côté serveur]
-  F -- Non --> H[Payer via le lien Wave Business]
-  H --> I[Soumettre l’ID de transaction]
+  A[Galerie SAMA CV] --> B[Aperçu public gratuit]
+  B --> C{Modifier le modèle ?}
+  C -- Oui --> D[Inscription ou connexion]
+  D --> E[Édition du CV]
+  C -- Non --> B
+  E --> F{Télécharger le PDF ?}
+  F -- Non --> E
+  F -- Oui --> G{Droit déjà validé ?}
+  G -- Oui --> H[Génération du PDF côté serveur]
+  G -- Non --> I[Paiement Wave et soumission de transaction]
   I --> J[Demande enregistrée en attente]
   J --> K[Admin vérifie la transaction dans Wave]
   K --> L{Valide ?}
   L -- Oui --> M[API enregistre l’approbation et le droit]
   L -- Non --> N[Demande refusée]
-  M --> O[Génération du PDF après vérification du droit]
+  M --> H
 ```
 
 L’ID saisi par le client n’est jamais une preuve. Le navigateur ne peut ni confirmer une transaction ni accorder un droit : un administrateur authentifié vérifie le paiement dans Wave avant de l’approuver côté serveur. L’automatisation par webhook reste suspendue jusqu’à réception de la documentation officielle Wave.
@@ -40,7 +41,7 @@ L’ID saisi par le client n’est jamais une preuve. Le navigateur ne peut ni c
 - `api/entitlements.js` : vérifie les droits côté serveur.
 - `api/download-pdf.js` : vérifie la session et le droit, nettoie le contenu du CV édité et génère le PDF avec Chromium à partir du modèle HTML de confiance.
 - `api/models.js` : découvre les fichiers `modelN.html` de la racine et expose le catalogue utilisé par la galerie et l’administration.
-- `api/protected-model.js` et `vercel.json` : réécrivent toutes les URLs `modelN.html` (N de 1 à 9999) vers une fonction qui vérifie session et droit avant de servir le HTML. Les scripts partagés sont ajoutés aux nouveaux modèles s’ils ne sont pas inclus.
+- `api/protected-model.js` et `vercel.json` : réécrivent toutes les URLs `modelN.html` (N de 1 à 9999) vers une fonction qui sert le modèle pour l’aperçu public. `assets/protection.js` rend l’édition disponible après connexion ; cette interface côté navigateur n’est pas une frontière de sécurité.
 - `api/session.js` : synchronise la session Supabase vers un cookie `HttpOnly`, `Secure`, `SameSite=Lax` afin que les navigations HTML transmettent l’identité au serveur.
 - `admin.html` : interface de revue manuelle ; l’autorisation est aussi vérifiée côté API.
 - `supabase/migrations/001_manual_wave_payments.sql` et `002_dynamic_model_ids.sql` : paiements en attente, droits par modèle, RLS, fonction transactionnelle de validation et validation des numéros de modèles extensibles.
@@ -67,7 +68,7 @@ Le compte Wave et le lien seul ne permettent pas d’implémenter un checkout ou
 
 ## Distribution des modèles et PDF
 
-Les requêtes vers `modelN.html` (N de 1 à 9999) sont réécrites vers `api/protected-model.js`. L’API vérifie l’identité Supabase et l’entitlement avant de lire le modèle et de retourner l’HTML. Les fichiers de modèles sont inclus dans le bundling Vercel par motif ; l’ajout d’un nouveau fichier n’exige pas de nouvelle route. `lib/model-template.js` ajoute les scripts partagés et la règle de dimensions de portrait pour les nouveaux modèles ; `protection.js` ajoute une barre d’outils avec accès PDF si le modèle a `#cvContainer` mais pas de barre dédiée. Le navigateur transmet la session via un cookie HTTP-only ; le contrôle visuel de `protection.js` ne constitue pas une frontière de sécurité. Les modèles doivent contenir `#cvContainer` et un balisage d’édition compatible pour offrir les fonctions d’édition et de PDF.
+Les requêtes vers `modelN.html` (N de 1 à 9999) sont réécrites vers `api/protected-model.js`, qui sert le modèle pour l’aperçu public. Les fichiers de modèles sont inclus dans le bundling Vercel par motif ; l’ajout d’un nouveau fichier n’exige pas de nouvelle route. `lib/model-template.js` ajoute les scripts partagés et le style de floutage du portrait ; `protection.js` ajoute les commandes d’édition et de téléchargement aux modèles qui ont `#cvContainer`. L’interface masque l’édition sans session, mais un modèle envoyé au navigateur ne peut pas être rendu privé par cette mesure. La véritable barrière de paiement est `api/download-pdf.js`, qui vérifie le droit côté serveur avant de générer le PDF.
 
 `api/download-pdf.js` reçoit le HTML du conteneur édité, le nettoie et l’insère dans le modèle source de confiance avant son rendu par Chromium. L’API vérifie le droit côté serveur puis retourne le PDF avec `Cache-Control: private, no-store`. Les données du CV restent dans le navigateur ; la génération nécessite donc que le client transmette un CV édité valide.
 

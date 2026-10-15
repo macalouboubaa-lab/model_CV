@@ -1,4 +1,4 @@
- (function () {
+(function () {
   const MODEL_ID_PATTERN = /^model[1-9]\d{0,3}$/;
 
   function detectModelId() {
@@ -9,9 +9,160 @@
     return MODEL_ID_PATTERN.test(detectedModel) ? detectedModel : 'model1';
   }
 
+  function showWarning(message) {
+    let warning = document.getElementById('sama-protection-warning');
+    if (!warning) {
+      warning = document.createElement('div');
+      warning.id = 'sama-protection-warning';
+      warning.setAttribute('role', 'alert');
+      document.body.appendChild(warning);
+    }
+    warning.textContent = message;
+    warning.classList.remove('warning-visible');
+    requestAnimationFrame(() => warning.classList.add('warning-visible'));
+    window.clearTimeout(warning.hideTimer);
+    warning.hideTimer = window.setTimeout(() => warning.classList.remove('warning-visible'), 2600);
+  }
+
+  function addSharedStyles() {
+    if (document.querySelector('#sama-shared-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'sama-shared-styles';
+    style.textContent = `
+      #cvContainer .profile-photo, #cvContainer .cv-profile-photo { box-sizing:border-box!important; width:96px!important; height:96px!important; max-width:100%; object-fit:cover!important; }
+      body:not(.paid-user) #cvContainer .profile-photo, body:not(.paid-user) #cvContainer .cv-profile-photo { filter:blur(4px) saturate(.7)!important; transition:filter .3s ease; }
+      body:not(.paid-user) #cvContainer .profile-photo:hover, body:not(.paid-user) #cvContainer .cv-profile-photo:hover { filter:blur(4px) saturate(.7)!important; }
+      body.paid-user #cvContainer .profile-photo, body.paid-user #cvContainer .cv-profile-photo { filter:none!important; }
+      @media(max-width:768px) {
+        body:not(.paid-user) #cvContainer .profile-photo, body:not(.paid-user) #cvContainer .cv-profile-photo { filter:blur(6px) saturate(.6)!important; }
+        body.paid-user #cvContainer .profile-photo, body.paid-user #cvContainer .cv-profile-photo { filter:none!important; }
+      }
+      @media print {
+        body:not(.paid-user) #cvContainer .profile-photo, body:not(.paid-user) #cvContainer .cv-profile-photo { filter:blur(6px) saturate(.5)!important; }
+        body.paid-user #cvContainer .profile-photo, body.paid-user #cvContainer .cv-profile-photo { filter:none!important; }
+      }
+      .sama-generated-toolbar { display:flex; justify-content:center; gap:8px; padding:12px; }
+      .sama-generated-toolbar button { padding:9px 14px; border:0; border-radius:5px; background:#27AE60; color:#fff; font-weight:700; cursor:pointer; }
+      #sama-banner { position:fixed; inset:auto 0 0; z-index:9999; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:10px; padding:12px 18px; border-top:3px solid #C342FF; background:#0B0F19; color:white; font:13px Arial,sans-serif; }
+      #sama-banner .separator { color:#4A5060; }
+      #sama-banner button { padding:8px 14px; border:0; border-radius:5px; background:#27AE60; color:white; font:700 13px Arial,sans-serif; cursor:pointer; }
+      .toolbar .sama-download-button, .toolbar .sama-edit-button { background:#27AE60!important; }
+      body.public-preview #cvContainer [contenteditable="true"] { pointer-events:none; user-select:none; }
+      body.public-preview #cvContainer .profile-photo { pointer-events:none; }
+      body.public-preview .btn-add, body.public-preview .btn-delete { display:none!important; }
+      body.public-preview .toolbar > :not(.sama-edit-button):not(.sama-download-button) { display:none!important; }
+      body.edit-mode .sama-edit-button { display:none!important; }
+      #sama-protection-warning { position:fixed; z-index:10001; top:18px; left:50%; padding:10px 16px; border:1px solid #ff7474; border-radius:5px; background:#8f2020; color:white; font:600 13px Arial,sans-serif; opacity:0; pointer-events:none; transform:translate(-50%,-8px); transition:opacity .2s,transform .2s; }
+      #sama-protection-warning.warning-visible { opacity:1; transform:translate(-50%,0); }
+      body.admin-mode #sama-watermark, body.admin-mode #sama-banner { display:none!important; }
+      @media(max-width:600px) { .watermark-content { inset:-12%; grid-template-columns:repeat(2,1fr); grid-template-rows:repeat(5,1fr); } .watermark-brand { font-size:21px; } #sama-banner { gap:6px; padding:8px 10px; font-size:11px; } #sama-banner button { font-size:11px; padding:6px 10px; } }
+      @media print {
+        body:not(.admin-mode) #sama-watermark { display:block!important; opacity:1!important; }
+        body:not(.admin-mode) .watermark-content { opacity:0.4!important; }
+        #sama-banner, .sama-generated-toolbar { display:none!important; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function ensureToolbar() {
+    const existingToolbar = document.querySelector('.toolbar');
+    if (existingToolbar) return existingToolbar;
+
+    const container = document.querySelector('#cvContainer');
+    if (!container) return null;
+    const toolbar = document.createElement('div');
+    toolbar.className = 'toolbar no-print sama-generated-toolbar';
+    container.insertAdjacentElement('beforebegin', toolbar);
+    return toolbar;
+  }
+
+  function paymentUrl(modelId) {
+    return `/payment.html?model=${encodeURIComponent(modelId)}&intent=download`;
+  }
+
+  function markDownloadIntent(modelId) {
+    sessionStorage.setItem(`sama-download-intent:${modelId}`, '1');
+  }
+
+  async function handleDownload(button) {
+    const modelId = detectModelId();
+    const container = document.querySelector('#cvContainer');
+    if (!container) {
+      showWarning('Le contenu du CV est introuvable.');
+      return;
+    }
+
+    button.disabled = true;
+    try {
+      const session = await window.getVerifiedSession?.();
+      if (!session) {
+        markDownloadIntent(modelId);
+        const next = paymentUrl(modelId);
+        window.location.assign(`/login.html?next=${encodeURIComponent(next)}`);
+        return;
+      }
+
+      let hasAccess = Boolean(session.isAdmin);
+      if (!hasAccess) {
+        try {
+          hasAccess = await window.getEntitlement(modelId);
+        } catch (error) {
+          showWarning(error.message);
+          return;
+        }
+      }
+      if (!hasAccess) {
+        markDownloadIntent(modelId);
+        window.location.assign(paymentUrl(modelId));
+        return;
+      }
+      sessionStorage.removeItem(`sama-download-intent:${modelId}`);
+      await window.downloadPdf(modelId, container.innerHTML);
+    } catch (error) {
+      showWarning(error.message);
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  function ensureWorkflowControls() {
+    const toolbar = ensureToolbar();
+    if (!toolbar) return;
+
+    let downloadButton = toolbar.querySelector('button[onclick="exportPDF()"], .sama-export-pdf, .sama-download-button');
+    if (!downloadButton) {
+      downloadButton = document.createElement('button');
+      toolbar.appendChild(downloadButton);
+    }
+    downloadButton.removeAttribute('onclick');
+    downloadButton.type = 'button';
+    downloadButton.classList.add('sama-download-button');
+    downloadButton.textContent = 'Télécharger mon CV en PDF';
+    downloadButton.addEventListener('click', () => handleDownload(downloadButton));
+
+    if (!toolbar.querySelector('.sama-edit-button')) {
+      const editButton = document.createElement('button');
+      editButton.type = 'button';
+      editButton.className = 'secondary sama-edit-button';
+      editButton.textContent = 'Se connecter pour modifier';
+      editButton.addEventListener('click', async () => {
+        const modelId = detectModelId();
+        const session = await window.getVerifiedSession?.();
+        if (session) {
+          window.location.assign(`/${modelId}.html?mode=edit`);
+          return;
+        }
+        const next = `/${modelId}.html?mode=edit`;
+        window.location.assign(`/login.html?next=${encodeURIComponent(next)}`);
+      });
+      toolbar.insertBefore(editButton, downloadButton);
+    }
+  }
+
   function addATSControls() {
     const container = document.querySelector('#cvContainer');
-    const toolbar = document.querySelector('.toolbar');
+    const toolbar = ensureToolbar();
     const heading = container?.querySelector('h1');
     if (!container || !toolbar || !heading) return;
 
@@ -20,61 +171,6 @@
       badge.className = 'ats-friendly-badge';
       badge.textContent = 'ATS Friendly';
       heading.insertAdjacentElement('afterend', badge);
-    }
-
-    function addSharedStyles() {
-      if (document.querySelector('#sama-shared-styles')) return;
-      const style = document.createElement('style');
-      style.id = 'sama-shared-styles';
-      style.textContent = `
-        #cvContainer .profile-photo { box-sizing:border-box!important; width:96px!important; height:96px!important; max-width:100%; object-fit:cover!important; }
-        .sama-generated-toolbar { display:flex; justify-content:center; gap:8px; padding:12px; }
-        .sama-generated-toolbar button { padding:9px 14px; border:0; border-radius:5px; background:#27AE60; color:#fff; font-weight:700; cursor:pointer; }
-        @media print { .sama-generated-toolbar { display:none!important; } }
-      `;
-      document.head.appendChild(style);
-    }
-
-    function ensureToolbar() {
-      const existingToolbar = document.querySelector('.toolbar');
-      if (existingToolbar) return existingToolbar;
-
-      const container = document.querySelector('#cvContainer');
-      if (!container) return null;
-      const toolbar = document.createElement('div');
-      toolbar.className = 'toolbar no-print sama-generated-toolbar';
-      container.insertAdjacentElement('beforebegin', toolbar);
-      return toolbar;
-    }
-
-    function ensureExportButton() {
-      const toolbar = ensureToolbar();
-      if (!toolbar) return null;
-
-      let button = toolbar.querySelector('button[onclick="exportPDF()"], .sama-export-pdf');
-      if (button) return button;
-
-      button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'sama-export-pdf';
-      button.textContent = 'Télécharger en PDF';
-      button.addEventListener('click', async () => {
-        const container = document.querySelector('#cvContainer');
-        if (!container) {
-          showWarning('Le contenu du CV est introuvable.');
-          return;
-        }
-        button.disabled = true;
-        try {
-          await window.downloadPdf(detectModelId(), container.innerHTML);
-        } catch (error) {
-          showWarning(error.message);
-        } finally {
-          button.disabled = false;
-        }
-      });
-      toolbar.appendChild(button);
-      return button;
     }
 
     if (!toolbar.querySelector('.ats-mode-toggle')) {
@@ -108,26 +204,22 @@
         body.ats-mode #cvContainer, body.ats-mode #cvContainer * { font-size:14px!important; line-height:1.4!important; letter-spacing:normal!important; }
         body.ats-mode #cvContainer h1 { font-size:28px!important; }
         body.ats-mode #cvContainer h2, body.ats-mode #cvContainer .section-title { font-size:17px!important; text-transform:uppercase!important; }
-        body.ats-mode #cvContainer .profile-photo { width:64px!important; height:64px!important; }
+        body.ats-mode #cvContainer .profile-photo, body.ats-mode #cvContainer .cv-profile-photo { width:64px!important; height:64px!important; }
         body.ats-mode #cvContainer:before { display:none!important; }
       `;
       document.head.appendChild(style);
     }
   }
 
-  function showWarning(message) {
-    let warning = document.getElementById('sama-protection-warning');
-    if (!warning) {
-      warning = document.createElement('div');
-      warning.id = 'sama-protection-warning';
-      warning.setAttribute('role', 'alert');
-      document.body.appendChild(warning);
-    }
-    warning.textContent = message;
-    warning.classList.remove('warning-visible');
-    requestAnimationFrame(() => warning.classList.add('warning-visible'));
-    window.clearTimeout(warning.hideTimer);
-    warning.hideTimer = window.setTimeout(() => warning.classList.remove('warning-visible'), 2600);
+  function setEditingEnabled(enabled) {
+    const container = document.querySelector('#cvContainer');
+    if (!container) return;
+    container.querySelectorAll('[data-editable]').forEach((element) => {
+      element.setAttribute('contenteditable', String(enabled));
+    });
+    container.querySelectorAll('.profile-photo, .cv-profile-photo').forEach((photo) => {
+      photo.classList.add('cv-profile-photo');
+    });
   }
 
   function enableProtection() {
@@ -153,109 +245,82 @@
     });
   }
 
-  function addWatermark() {
+  async function addWatermark() {
     const modelId = detectModelId();
-    const exportButton = ensureExportButton();
-    return Promise.resolve(window.getVerifiedSession?.()).then(async (session) => {
-      if (session?.isAdmin) {
-        document.body.classList.add('admin-mode');
-        return false;
+    const session = await window.getVerifiedSession?.();
+    let isPaid = Boolean(session?.isAdmin);
+    if (session && !isPaid) {
+      try {
+        isPaid = await window.getEntitlement(modelId);
+      } catch (error) {
+        showWarning(error.message);
       }
+    }
 
-      const isPaid = Boolean(session?.email && await window.hasPaid?.(session.email, modelId));
-      const watermarkMessage = isPaid ? 'Paiement validé' : 'Aperçu — Non payé';
-      const watermarkCta = isPaid ? 'Téléchargez votre CV en PDF' : 'Payez 2.000 FCFA';
+    const previewRequested = new URLSearchParams(window.location.search).get('mode') === 'preview';
+    const isPreview = !session || previewRequested;
+    document.body.classList.toggle('paid-user', isPaid);
+    document.body.classList.toggle('public-preview', isPreview);
+    document.body.classList.toggle('edit-mode', Boolean(session) && !isPreview);
+    document.body.classList.toggle('admin-mode', Boolean(session?.isAdmin));
+    setEditingEnabled(!isPreview);
+    const editButton = document.querySelector('.sama-edit-button');
+    if (editButton) editButton.textContent = session ? 'Modifier ce modèle' : 'Se connecter pour modifier';
 
-      const watermark = document.createElement('div');
-      watermark.id = 'sama-watermark';
-      watermark.setAttribute('aria-hidden', 'true');
-      watermark.innerHTML = `<div class="watermark-content">${Array.from({ length: 12 }, () => `
-        <div class="watermark-text">
-          <span class="watermark-brand">SAMA CV</span>
-          <span class="watermark-msg">${watermarkMessage}</span>
-          <span class="watermark-cta">${watermarkCta}</span>
-          <span class="watermark-url">samacv.com</span>
-        </div>`).join('')}</div>`;
-      document.body.appendChild(watermark);
+    const watermarkMessage = isPaid ? 'Paiement validé' : 'Aperçu — Photo protégée';
+    const watermark = document.createElement('div');
+    watermark.id = 'sama-watermark';
+    watermark.setAttribute('aria-hidden', 'true');
+    watermark.innerHTML = `<div class="watermark-content">${Array.from({ length: 12 }, () => `
+      <div class="watermark-text">
+        <span class="watermark-brand">SAMA CV</span>
+        <span class="watermark-msg">${watermarkMessage}</span>
+        <span class="watermark-url">samacv.com</span>
+      </div>`).join('')}</div>`;
+    document.body.appendChild(watermark);
 
-      const banner = document.createElement('div');
-      banner.id = 'sama-banner';
-      banner.innerHTML = isPaid
-        ? '<span>Paiement validé</span><span class="separator">•</span><span>Téléchargez votre CV en PDF depuis la barre d’outils.</span>'
-        : '<span>Document en aperçu</span><span class="separator">•</span><span>Le paiement sera vérifié par un administrateur.</span><button type="button">Payer 2.000 FCFA</button>';
-      const bannerPaymentButton = banner.querySelector('button');
-      bannerPaymentButton?.addEventListener('click', () => {
-        window.location.assign(`/payment.html?model=${encodeURIComponent(modelId)}`);
+    const banner = document.createElement('div');
+    banner.id = 'sama-banner';
+    if (isPreview) {
+      banner.append('Document en aperçu · ');
+      const action = document.createElement('button');
+      action.type = 'button';
+      action.textContent = session ? 'Modifier ce modèle' : 'Se connecter pour modifier';
+      action.addEventListener('click', () => {
+        const next = `/${modelId}.html?mode=edit`;
+        window.location.assign(session ? next : `/login.html?next=${encodeURIComponent(next)}`);
       });
-      document.body.appendChild(banner);
-
-      if (exportButton) {
-        const replacementButton = document.createElement('button');
-        replacementButton.type = 'button';
-        replacementButton.className = isPaid
-          ? exportButton.className
-          : `${exportButton.className} sama-pay-button`;
-        replacementButton.textContent = isPaid
-          ? 'Télécharger mon CV en PDF'
-          : 'Payer 2.000 FCFA pour télécharger';
-        if (isPaid) {
-          replacementButton.addEventListener('click', async () => {
-            const container = document.querySelector('#cvContainer');
-            if (!container) {
-              showWarning('Le contenu du CV est introuvable.');
-              return;
-            }
-            replacementButton.disabled = true;
-            try {
-              await window.downloadPdf(modelId, container.innerHTML);
-            } catch (error) {
-              showWarning(error.message);
-            } finally {
-              replacementButton.disabled = false;
-            }
-          });
-        } else {
-          replacementButton.addEventListener('click', () => {
-            window.location.assign(`/payment.html?model=${encodeURIComponent(modelId)}`);
-          });
-        }
-        exportButton.replaceWith(replacementButton);
-      }
-
-      const style = document.createElement('style');
-      style.textContent = `
-        #sama-watermark { position:fixed; inset:0; z-index:9998; overflow:hidden; pointer-events:none; }
-        .watermark-content { position:absolute; inset:-20%; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(4,1fr); transform:rotate(-30deg) scale(1.1); opacity:0.4; }
-        .watermark-text { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; padding:12px; color:#2C3E50; font:600 12px Arial,sans-serif; text-align:center; }
-        .watermark-brand { color:#C342FF; font-size:27px; font-weight:900; }
-        .watermark-msg { color:#E74C3C; font-size:12px; font-weight:700; }
-        .watermark-cta { color:#2C3E50; }
-        .watermark-url { color:#7F8C8D; font-size:10px; }
-        #sama-banner { position:fixed; inset:auto 0 0; z-index:9999; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:10px; padding:12px 18px; border-top:3px solid #C342FF; background:#0B0F19; color:white; font:13px Arial,sans-serif; }
-        #sama-banner .separator { color:#4A5060; }
-        #sama-banner button { padding:8px 14px; border:0; border-radius:5px; background:#27AE60; color:white; font:700 13px Arial,sans-serif; cursor:pointer; }
-        .toolbar .sama-pay-button, .toolbar .sama-export-pdf { background:#27AE60!important; }
-        #sama-protection-warning { position:fixed; z-index:10001; top:18px; left:50%; padding:10px 16px; border:1px solid #ff7474; border-radius:5px; background:#8f2020; color:white; font:600 13px Arial,sans-serif; opacity:0; pointer-events:none; transform:translate(-50%,-8px); transition:opacity .2s,transform .2s; }
-        #sama-protection-warning.warning-visible { opacity:1; transform:translate(-50%,0); }
-        body.admin-mode #sama-watermark, body.admin-mode #sama-banner { display:none!important; }
-        @media(max-width:600px) { .watermark-content { inset:-12%; grid-template-columns:repeat(2,1fr); grid-template-rows:repeat(5,1fr); } .watermark-brand { font-size:21px; } #sama-banner { gap:6px; padding:8px 10px; font-size:11px; } #sama-banner button { font-size:11px; padding:6px 10px; } }
-        @media print { body:not(.admin-mode) #sama-watermark { display:block!important; opacity:1!important; } body:not(.admin-mode) .watermark-content { opacity:0.4!important; } #sama-banner { display:none!important; } }
-      `;
-      document.head.appendChild(style);
-      return true;
-    }).catch(() => {
-      showWarning('Le statut d’accès n’a pas pu être vérifié. Le document reste en aperçu.');
-      return false;
-    });
+      banner.append(action);
+    } else if (isPaid) {
+      banner.textContent = 'Paiement validé · Téléchargez votre CV en PDF depuis la barre d’outils.';
+    } else {
+      banner.textContent = 'Édition libre · La photo reste protégée; le paiement n’est demandé qu’au téléchargement.';
+    }
+    document.body.appendChild(banner);
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    enableProtection();
-    ensureToolbar();
     addSharedStyles();
+    ensureToolbar();
+    ensureWorkflowControls();
     addATSControls();
-    addWatermark();
+    enableProtection();
+    document.body.classList.add('public-preview');
+    setEditingEnabled(false);
+    addWatermark().catch((error) => {
+      showWarning(error.message);
+      document.body.classList.add('public-preview');
+      document.body.classList.remove('edit-mode');
+      setEditingEnabled(false);
+    });
   });
 
-  Object.assign(window, { enableProtection, showWarning, addWatermark, detectModelId, addATSControls, addSharedStyles });
+  Object.assign(window, {
+    enableProtection,
+    showWarning,
+    addWatermark,
+    detectModelId,
+    addATSControls,
+    addSharedStyles
+  });
 })();

@@ -2,6 +2,13 @@
 
 Les changements notables du projet sont consignés ici, du plus récent au plus ancien.
 
+## 2026-10-15 — Aperçu public, édition connectée et protection photo
+
+- Les modèles s’ouvrent en aperçu sans connexion ; l’édition demande une connexion ou une inscription.
+- Le paiement Wave ne s’affiche qu’après une demande de téléchargement et le PDF reste vérifié côté serveur.
+- Restauration du floutage photo avant validation du droit, renforcé sur mobile et à l’impression ; le PDF payé reste net.
+- Correction de l’initialisation des commandes communes dans `assets/protection.js`.
+
 ## 2026-10-09 — Synchronisation de la documentation de configuration
 
 - Ajout des notes communiquées sur le projet Supabase, PostgreSQL, `pgcrypto` et le schéma signalé de `public.users`, en précisant les éléments non vérifiés.

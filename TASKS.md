@@ -19,12 +19,14 @@
 - [x] Implémenter le squelette du flux Wave manuel : demandes en attente, API d’administration et migration SQL avec RLS (configuration et tests réels encore requis).
 - [x] Lire les variables publiques Supabase via `/api/config` et prendre en charge les noms d’environnement Vercel `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 - [x] N’activer le téléchargement PDF qu’après vérification du droit côté serveur.
-- [x] Protéger les URLs de modèles Vercel par session et entitlement côté serveur, et générer le PDF du CV édité côté serveur après validation du droit.
+- [x] Rendre l’aperçu des modèles accessible publiquement et vérifier le droit côté serveur avant la génération du PDF du CV édité.
 - [x] Corriger l’indicateur de sauvegarde automatique et afficher les erreurs de quota `localStorage` dans les quatorze modèles.
 - [x] Paginer la liste des demandes Wave côté API et interface d’administration.
 - [x] Documenter les informations de configuration Supabase communiquées et les distinguer des éléments vérifiés dans le dépôt.
 - [x] Uniformiser l’affichage des portraits à 96 × 96 px dans les quatorze modèles existants.
-- [x] Ajouter la découverte automatique des modèles `modelN.html`, le routage protégé, la génération PDF, le catalogue galerie/admin et la validation des identifiants jusqu’à model9999.
+- [x] Ajouter la découverte automatique des modèles `modelN.html`, le routage d’aperçu public, la génération PDF contrôlée, le catalogue galerie/admin et la validation des identifiants jusqu’à model9999.
+- [x] Servir l’aperçu des modèles sans connexion, réserver l’édition aux sessions connectées et n’ouvrir le paiement qu’après un clic sur le téléchargement.
+- [x] Restaurer le floutage des portraits avant paiement, renforcé sur mobile et à l’impression, et retirer le flou du PDF après validation du droit.
 
 ## À faire
 

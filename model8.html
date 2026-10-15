@@ -138,7 +138,7 @@ body{background:#e8ecee;color:#243541}.cv-container{padding:0 20mm 18mm}.header{
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       const session = await window.getVerifiedSession();
-      if (!session) { window.location.assign('/login.html'); return; }
+      if (!session) return;
       if (session.isAdmin) document.body.classList.add('admin-mode');
     });
   </script>

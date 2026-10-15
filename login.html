@@ -60,6 +60,13 @@
     const password = document.querySelector('#password');
     const errorMessage = document.querySelector('#form-error');
     const submitButton = document.querySelector('#submit-button');
+    const requestedNext = new URLSearchParams(window.location.search).get('next');
+    const safeNext = requestedNext && requestedNext.startsWith('/') && !requestedNext.startsWith('//') && !requestedNext.includes('\\')
+      ? requestedNext
+      : '';
+    if (safeNext) {
+      document.querySelector('.switch a').href = `/signup.html?next=${encodeURIComponent(safeNext)}`;
+    }
     if (new URLSearchParams(window.location.search).get('created') === '1') {
       document.querySelector('#created-message').textContent = 'Compte créé. Connectez-vous pour continuer. Si la confirmation email est activée, confirmez d’abord votre adresse.';
     }
@@ -85,11 +92,7 @@
         window.location.assign('/admin.html');
         return;
       }
-      const requestedNext = new URLSearchParams(window.location.search).get('next');
-      const safeNext = requestedNext && requestedNext.startsWith('/') && !requestedNext.startsWith('//') && !requestedNext.includes('\\')
-        ? requestedNext
-        : '/index.html';
-      window.location.assign(safeNext);
+      window.location.assign(safeNext || '/index.html');
     });
   </script>
 </body>

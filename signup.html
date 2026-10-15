@@ -74,7 +74,12 @@
         message.textContent = result.error || 'La création du compte a échoué.';
         return;
       }
-      window.location.assign('/login.html?created=1');
+      const requestedNext = new URLSearchParams(window.location.search).get('next');
+      const safeNext = requestedNext && requestedNext.startsWith('/') && !requestedNext.startsWith('//') && !requestedNext.includes('\\')
+        ? requestedNext
+        : '';
+      const nextQuery = safeNext ? `&next=${encodeURIComponent(safeNext)}` : '';
+      window.location.assign(`/login.html?created=1${nextQuery}`);
     });
   </script>
 </body>
